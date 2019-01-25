@@ -1,5 +1,5 @@
 {
-  "name": "playgroundth",
+  "name": "farfromhome",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -20,7 +20,7 @@
     "sass-loader": "^7.1.0",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.1",
-    "webpack-dev-server": "^3.1.8"
+    "webpack-dev-server": "^3.1.14"
   },
   "dependencies": {
     "three": "^0.96.0"
