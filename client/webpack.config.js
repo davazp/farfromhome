@@ -13,6 +13,7 @@ module.exports = {
     filename: "main.js",
     path: path.resolve(__dirname, "dist")
   },
+  stats: "minimal",
   module: {
     rules: [
       {
@@ -29,5 +30,8 @@ module.exports = {
     ]
   },
   plugins: [htmlPlugin],
-  devtool: "cheap-module-eval-source-map"
+  devtool: "cheap-module-eval-source-map",
+  devServer: {
+    stats: "minimal"
+  }
 };
