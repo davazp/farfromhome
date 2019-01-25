@@ -12,12 +12,17 @@ class Entity {
   constructor(x, y, z) {
     this.pos = [x, y, z];
   }
+
+  getPos() {
+    return this.pos;
+  }
+
   receivedMessage(origin, message) {
-    console.log({ pos: this.pos, origin, message });
+    console.log({ pos: this.getPos(), origin, message });
   }
 
   sendMessage(source, message) {
-    const d = distance(this.pos, source.pos);
+    const d = distance(this.getPos(), source.getPos());
     const SECOND = 1000;
     const delay = (d / C) * SECOND;
     setTimeout(() => {
@@ -37,6 +42,35 @@ class Planet extends Entity {
         return;
     }
   }
+}
+
+class Spaceship extends Entity {
+  constructor(x, y, z) {
+    this.lastTime = new Date();
+    this.lastPos = [x, y, z];
+    this.velocity = [0, 0, 0];
+  }
+
+  updateVelocity(newvel) {
+    this.lastPos = this.getPos();
+    this.lastTime = new Date();
+    this.velocity = newvel;
+  }
+
+  getPositionAtTime(t) {
+    const [x, y, z] = this.lastPos;
+    const dt = t - this.lastTime;
+    const [vx, vy, vz] = this.velocity;
+    return [x + dt * vx, y + dt * vy, z + dt * vz];
+  }
+
+  getPos() {
+    return this.getPositionAtTime(new Date());
+  }
+
+  // sendMessage() {
+  //
+  // }
 }
 
 class Universe {
@@ -59,7 +93,7 @@ class Universe {
 
   broadcast(message) {
     this.entities.forEach(e => {
-      if (true || distance(e.pos, this.player.pos) < 5 * C) {
+      if (true || distance(e.getPos(), this.player.getPos()) < 5 * C) {
         e.sendMessage(this.player, { type: "ping" });
       }
     });
