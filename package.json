@@ -1,28 +1,19 @@
 {
   "name": "farfromhome",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
+  "private": true,
   "scripts": {
-    "start": "webpack-dev-server --mode development  --hot --host 0.0.0.0 --open",
-    "build": "webpack --mode production"
+    "start:server": "yarn workspace @farfromhome/server start",
+    "start:client": "yarn workspace @farfromhome/client start",
+    "start": "concurrently yarn:start:*"
   },
-  "author": "",
-  "license": "ISC",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "license": "MIT",
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-loader": "^7.1.4",
-    "babel-preset-env": "^1.6.1",
-    "babel-preset-stage-2": "^6.24.1",
-    "css-loader": "^1.0.0",
-    "html-webpack-plugin": "^3.2.0",
-    "node-sass": "^4.9.3",
-    "sass-loader": "^7.1.0",
-    "webpack": "^4.19.1",
-    "webpack-cli": "^3.1.1",
-    "webpack-dev-server": "^3.1.14"
-  },
-  "dependencies": {
-    "three": "^0.96.0"
+    "concurrently": "^4.1.0"
   }
 }
