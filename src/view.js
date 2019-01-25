@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { X } from "./entity";
 import "./enableThree";
 import "three/examples/js/controls/OrbitControls";
+import { Planet, Spaceship } from "./entity";
 
 export class View {
   constructor(universe) {
@@ -10,13 +11,25 @@ export class View {
   }
 
   update() {
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({
-      color: new THREE.Color("skyblue")
+    const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+    const planetMaterial = new THREE.MeshBasicMaterial({
+      color: new THREE.Color("gray")
+    });
+
+    const spaceshipMaterial = new THREE.MeshBasicMaterial({
+      color: new THREE.Color("red")
     });
 
     this.universe.entities.forEach(e => {
       let obj = this.objects.get(e);
+
+      let material;
+
+      if (e instanceof Planet) {
+        material = planetMaterial;
+      } else if (e instanceof Spaceship) {
+        material = spaceshipMaterial;
+      }
 
       if (!obj) {
         obj = new THREE.Mesh(geometry, material);
@@ -59,7 +72,7 @@ export class View {
 
     const geometry = new THREE.SphereGeometry(radius, segments, rings);
     const material = new THREE.MeshBasicMaterial({
-      color: 0xf3a2b0,
+      color: 0x303030,
       wireframe: true
     });
 

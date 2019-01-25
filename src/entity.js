@@ -48,7 +48,7 @@ class Entity {
   }
 }
 
-class Planet extends Entity {
+export class Planet extends Entity {
   receivedMessage(origin, message) {
     super.receivedMessage(origin, message);
     switch (message.type) {
@@ -61,7 +61,7 @@ class Planet extends Entity {
 
 class Player extends Entity {}
 
-class Spaceship extends Entity {
+export class Spaceship extends Entity {
   constructor(x, y, z) {
     super(x, y, z);
     this.updateVelocity([0, 0, 0]);
@@ -79,7 +79,7 @@ class Spaceship extends Entity {
 export class Universe {
   constructor() {
     this.entities = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 1000; i++) {
       this.entities.push(
         new Planet(
           Λ * (2 * Math.random() - 1),
@@ -97,9 +97,9 @@ export class Universe {
       );
 
       s.updateVelocity([
-        (C * Math.random()) / 10,
-        (C * Math.random()) / 10,
-        (C * Math.random()) / 10
+        (C * Math.random()) / 1,
+        (C * Math.random()) / 1,
+        (C * Math.random()) / 1
       ]);
 
       this.entities.push(s);
