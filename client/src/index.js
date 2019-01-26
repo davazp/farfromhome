@@ -53,6 +53,13 @@ class View {
       this.pointsGeometry.attributes.position.needsUpdate = true;
       this.pointsGeometry.attributes.customColor.needsUpdate = true;
     });
+
+    setInterval(() => {
+      for (let i = 0; i < COUNT_OBJS; i++) {
+        this.colors[i * 4 + 3] = Math.max(0, this.colors[i * 4 + 3] - 0.005);
+      }
+      this.pointsGeometry.attributes.customColor.needsUpdate = true;
+    }, 10);
   }
 
   createPoints() {

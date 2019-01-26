@@ -134,8 +134,8 @@ class Universe {
 const universe = new Universe();
 
 setInterval(() => {
-  universe.tick(1);
-}, 1000);
+  universe.tick(0.1);
+}, 100);
 
 io.on("connection", function(socket) {
   socket.on("message", _message => {
