@@ -73,6 +73,24 @@ class View {
             source: this.selectedSource.id,
             destination: star.id
           });
+
+          const lineGeometry = new THREE.Geometry();
+          lineGeometry.vertices.push(this.selectedSource.mesh.position);
+          lineGeometry.vertices.push(star.mesh.position);
+          const lineMaterial = new THREE.LineBasicMaterial({
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.5
+          });
+          const line = new THREE.Line(lineGeometry, lineMaterial);
+          this.scene.add(line);
+
+          setTimeout(() => {
+            scene.remove(line);
+            line.geometry.dispose();
+            line.material.dispose();
+            line = undefined;
+          }, 1000);
         } else {
           this.selectedSource = star;
         }
