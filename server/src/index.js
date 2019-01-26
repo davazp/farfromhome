@@ -12,10 +12,27 @@ function distance(p1, p2) {
   );
 }
 
+function speed(v) {
+  return distance(v, [0, 0, 0]);
+}
+
+function scale(v, x) {
+  return [v[0] * x, v[1] * x, v[2] * x];
+}
+
+function difference(a, b) {
+  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+}
+
+function velocity(from, to, spd) {
+  const dir = difference(to, from);
+  return scale(dir, spd / speed(dir));
+}
+
 class Entity {
   constructor(x, y, z) {
     this.id = uuidv1();
-    this.pos = [x, y, z];
+    this.position = [x, y, z];
     this.messageQueue = [];
   }
 
@@ -27,7 +44,7 @@ class Entity {
     this.messageQueue = [];
     messages.forEach(m => {
       m.reach += dt * C;
-      const d = distance(this.pos, m.sourcePosition);
+      const d = distance(this.position, m.sourcePosition);
       if (d <= m.reach) {
         this.receivedMessage(m.source, m.message);
       } else {
@@ -43,7 +60,7 @@ class Entity {
   sendMessage(source, message) {
     this.messageQueue.push({
       reach: 0,
-      sourcePosition: source.pos,
+      sourcePosition: source.position,
       source,
       message
     });
@@ -71,17 +88,42 @@ class Spaceship extends Entity {
   constructor(x, y, z, owner) {
     super(x, y, z);
     this.updateVelocity([0, 0, 0]);
+    this.destination = null;
+    this.maxSpeed = 0.5 * C;
     setInterval(() => {
-      owner.sendMessage(this, { type: "heartbeat", position: this.pos });
+      owner.sendMessage(this, { type: "heartbeat", position: this.position });
     }, 1000);
   }
+
+  receivedMessage(origin, message) {
+    switch (message.type) {
+      case "return": {
+        this.updateDestination(origin);
+      }
+    }
+  }
+
   updateVelocity(newvel) {
     this.velocity = newvel;
   }
+  updateDestination(dest) {
+    this.destination = dest;
+    this.updateVelocity(velocity(this.position, dest.position, this.maxSpeed));
+  }
   update(dt) {
-    const [x, y, z] = this.pos;
-    const [vx, vy, vz] = this.velocity;
-    this.pos = [x + dt * vx, y + dt * vy, z + dt * vz];
+    if (
+      this.destination &&
+      distance(this.position, this.destination.position) <=
+        dt * speed(this.velocity)
+    ) {
+      this.position = this.destination.position;
+      this.updateVelocity([0, 0, 0]);
+      this.destination = null;
+    } else {
+      const [x, y, z] = this.position;
+      const [vx, vy, vz] = this.velocity;
+      this.position = [x + dt * vx, y + dt * vy, z + dt * vz];
+    }
   }
 }
 
@@ -136,6 +178,10 @@ const universe = new Universe();
 setInterval(() => {
   universe.tick(0.1);
 }, 100);
+
+setTimeout(() => {
+  universe.broadcast({ type: "return" });
+}, 10000);
 
 io.on("connection", function(socket) {
   socket.on("message", _message => {
