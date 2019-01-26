@@ -47,7 +47,10 @@ class View {
       }
       const v = new THREE.Vector3(...message.position);
       v.toArray(this.positions, idx * 3);
-      const c = new THREE.Vector4(1, 1, 1, 1);
+      const c =
+        message.type === "sos"
+          ? new THREE.Vector4(1, 0, 0, 1)
+          : new THREE.Vector4(1, 1, 1, 1);
       c.toArray(this.colors, idx * 4);
       this.sizes[idx] = 1;
       this.pointsGeometry.attributes.position.needsUpdate = true;

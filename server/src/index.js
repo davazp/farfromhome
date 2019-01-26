@@ -32,6 +32,7 @@ function velocity(from, to, spd) {
 class Entity {
   constructor(x, y, z) {
     this.id = uuidv1();
+    this.universe = null;
     this.position = [x, y, z];
     this.messageQueue = [];
   }
@@ -54,7 +55,7 @@ class Entity {
   }
 
   receivedMessage(origin, message) {
-    console.log({ type: "received", origin, message });
+    // console.log({ type: "received", origin, message });
   }
 
   sendMessage(source, message) {
@@ -65,15 +66,47 @@ class Entity {
       message
     });
   }
+
+  broadcast(message) {
+    this.universe.broadcast(this, message);
+  }
 }
 
 class Planet extends Entity {
+  constructor(x, y, z) {
+    super(x, y, z);
+    this.owner = null;
+    this.productionSpeed = 0;
+    this.capacity = 0;
+  }
+
   receivedMessage(origin, message) {
     super.receivedMessage(origin, message);
     switch (message.type) {
       case "ping":
         origin.sendMessage(this, { type: "pong" });
         return;
+    }
+  }
+
+  update(dt) {
+    if (this.owner) {
+      this.capacity += this.productionSpeed * dt;
+    }
+  }
+
+  receiveSpaceship(ship) {
+    if (!this.owner) {
+      this.owner = ship.owner;
+      this.capacity += 1;
+    } else if (this.owner === ship.owner) {
+      this.capacity += 1;
+    } else {
+      this.capacity -= 1;
+      ship.kill();
+      if (this.capacity === 0) {
+        this.owner = null;
+      }
     }
   }
 }
@@ -90,15 +123,22 @@ class Spaceship extends Entity {
     this.updateVelocity([0, 0, 0]);
     this.destination = null;
     this.maxSpeed = 0.5 * C;
-    setInterval(() => {
+    this.owner = owner;
+    this.heartbeat = setInterval(() => {
       owner.sendMessage(this, { type: "heartbeat", position: this.position });
     }, 1000);
   }
 
+  kill() {
+    clearInterval(this.heartbeat);
+    this.owner.sendMessage(this, { type: "sos", position: this.position });
+    this.universe.removeEntity(this);
+  }
+
   receivedMessage(origin, message) {
     switch (message.type) {
-      case "return": {
-        this.updateDestination(origin);
+      case "goto": {
+        this.updateDestination(message.target);
       }
     }
   }
@@ -118,6 +158,7 @@ class Spaceship extends Entity {
     ) {
       this.position = this.destination.position;
       this.updateVelocity([0, 0, 0]);
+      this.destination.receiveSpaceship(this);
       this.destination = null;
     } else {
       const [x, y, z] = this.position;
@@ -129,12 +170,15 @@ class Spaceship extends Entity {
 
 class Universe {
   constructor() {
-    this.player = new Player(0, 0, 0);
-
     this.entities = [];
 
+    this.player = new Player(0, 0, 0);
+    this.somePlanet = new Planet(Λ / 2, Λ / 2, Λ / 2);
+    this.somePlanet.owner = "enemy";
+    this.somePlanet.capacity = 99;
+
     for (let i = 0; i < 1000; i++) {
-      this.entities.push(
+      this.addEntity(
         new Planet(
           Λ * (2 * Math.random() - 1),
           Λ * (2 * Math.random() - 1),
@@ -157,18 +201,33 @@ class Universe {
         (C * (Math.random() - 0.5)) / 10
       ]);
 
-      this.entities.push(s);
+      this.addEntity(s);
     }
+
+    this.addEntity(this.player);
+    this.addEntity(this.somePlanet);
+  }
+
+  addEntity(ent) {
+    ent.universe = this;
+    this.entities.push(ent);
+  }
+
+  removeEntity(ent) {
+    ent.universe = null;
+    this.entities = this.entities.filter(e => e !== ent);
   }
 
   tick(dt) {
-    this.player.tick(dt);
+    this.somePlanet.tick(dt);
     this.entities.forEach(e => e.tick(dt));
   }
 
-  broadcast(message) {
+  broadcast(source, message) {
     this.entities.forEach(e => {
-      e.sendMessage(this.player, message);
+      if (e !== source) {
+        e.sendMessage(this.player, message);
+      }
     });
   }
 }
@@ -180,8 +239,8 @@ setInterval(() => {
 }, 100);
 
 setTimeout(() => {
-  universe.broadcast({ type: "return" });
-}, 10000);
+  universe.player.broadcast({ type: "goto", target: universe.somePlanet });
+}, 1000);
 
 io.on("connection", function(socket) {
   socket.on("message", _message => {
