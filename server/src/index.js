@@ -4,6 +4,9 @@ const io = require("socket.io")(http);
 
 const Universe = require("./universe");
 
+const Player = require("./player");
+const { random } = require("./vector-utils");
+
 const universe = new Universe(io);
 
 setInterval(() => {
@@ -15,9 +18,8 @@ setTimeout(() => {
 }, 1000);
 
 io.on("connection", function(socket) {
-  socket.on("message", _message => {
-    socket.emit("message", { type: "pong" });
-  });
+  const player = new Player(...random(), socket);
+  universe.addEntity(player);
 });
 
 http.listen(3000, function() {

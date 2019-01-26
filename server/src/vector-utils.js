@@ -1,3 +1,5 @@
+const { Λ } = require("./constants");
+
 function distance(p1, p2) {
   return Math.sqrt(
     (p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2 + (p1[2] - p2[2]) ** 2
@@ -19,6 +21,14 @@ function difference(a, b) {
 function velocity(from, to, spd) {
   const dir = difference(to, from);
   return scale(dir, spd / speed(dir));
+}
+
+function random() {
+  return [
+    Λ * (2 * Math.random() - 1),
+    Λ * (2 * Math.random() - 1),
+    Λ * (2 * Math.random() - 1)
+  ];
 }
 
 module.exports = {

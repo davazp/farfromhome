@@ -8,40 +8,40 @@ class Universe {
   constructor(io) {
     this.entities = [];
 
-    this.player = new Player(0, 0, 0, io);
-    this.somePlanet = new Planet(Λ / 2, Λ / 2, Λ / 2);
-    this.somePlanet.owner = "enemy";
-    this.somePlanet.capacity = 99;
+    // this.player = new Player(0, 0, 0, io);
+    // this.somePlanet = new Planet(Λ / 2, Λ / 2, Λ / 2);
+    // this.somePlanet.owner = "enemy";
+    // this.somePlanet.capacity = 99;
 
-    for (let i = 0; i < 1000; i++) {
-      this.addEntity(
-        new Planet(
-          Λ * (2 * Math.random() - 1),
-          Λ * (2 * Math.random() - 1),
-          Λ * (2 * Math.random() - 1)
-        )
-      );
-    }
+    // for (let i = 0; i < 1000; i++) {
+    //   this.addEntity(
+    //     new Planet(
+    //       Λ * (2 * Math.random() - 1),
+    //       Λ * (2 * Math.random() - 1),
+    //       Λ * (2 * Math.random() - 1)
+    //     )
+    //   );
+    // }
 
-    for (let i = 0; i < 100; i++) {
-      const s = new Spaceship(
-        Λ * (2 * Math.random() - 1),
-        Λ * (2 * Math.random() - 1),
-        Λ * (2 * Math.random() - 1),
-        this.player
-      );
+    // for (let i = 0; i < 100; i++) {
+    //   const s = new Spaceship(
+    //     Λ * (2 * Math.random() - 1),
+    //     Λ * (2 * Math.random() - 1),
+    //     Λ * (2 * Math.random() - 1),
+    //     this.player
+    //   );
 
-      s.updateVelocity([
-        (C * (Math.random() - 0.5)) / 10,
-        (C * (Math.random() - 0.5)) / 10,
-        (C * (Math.random() - 0.5)) / 10
-      ]);
+    //   s.updateVelocity([
+    //     (C * (Math.random() - 0.5)) / 10,
+    //     (C * (Math.random() - 0.5)) / 10,
+    //     (C * (Math.random() - 0.5)) / 10
+    //   ]);
 
-      this.addEntity(s);
-    }
+    //   this.addEntity(s);
+    // }
 
-    this.addEntity(this.player);
-    this.addEntity(this.somePlanet);
+    // this.addEntity(this.player);
+    // this.addEntity(this.somePlanet);
   }
 
   addEntity(ent) {
@@ -55,7 +55,6 @@ class Universe {
   }
 
   tick(dt) {
-    this.somePlanet.tick(dt);
     this.entities.forEach(e => e.tick(dt));
   }
 
