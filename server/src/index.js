@@ -34,7 +34,6 @@ io.on("connection", function(socket) {
   });
 
   universe.entities.forEach(e => {
-    console.log(e.constructor.name);
     if (e instanceof Planet) {
       player.sendMessage(e, "discovered", {
         type: e.constructor.name,
