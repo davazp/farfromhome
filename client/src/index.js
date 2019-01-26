@@ -110,9 +110,9 @@ class View {
   }
 
   update() {
+    this.spaceships.update();
     this.objects.forEach(o => o.update());
   }
 }
 
 const view = new View();
-view.start();

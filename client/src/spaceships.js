@@ -65,9 +65,9 @@ export class Spaceships {
   }
 
   update() {
-    // for (let i = 0; i < COUNT_OBJS; i++) {
-    //   this.colors[i * 4 + 3] = Math.max(0, this.colors[i * 4 + 3] - 0.005);
-    // }
-    // this.geometry.attributes.customColor.needsUpdate = true;
+    for (let i = 0; i < COUNT_OBJS; i++) {
+      this.colors[i * 4 + 3] = Math.max(0, this.colors[i * 4 + 3] - 0.005);
+    }
+    this.geometry.attributes.customColor.needsUpdate = true;
   }
 }
