@@ -1,1 +1,2 @@
-THREE=require('three');
+import * as THREE from "three";
+global.THREE = THREE;

@@ -1,17 +1,16 @@
 import io from "socket.io-client";
-import * as THREE from "three";
+import "three";
 import "./enableThree";
 import "three/examples/js/controls/OrbitControls";
+import "three/examples/js/renderers/Projector.js";
 
 import disc from "./textures/disc.png";
-
 import { Spaceships } from "./spaceships";
 import { Star } from "./star";
 
-import vertexShader from "./vertex.glsl";
-import fragmentShader from "./fragment.glsl";
-
 const socket = io("http://localhost:3000/");
+
+const THREE = window.THREE;
 
 socket.on("connect", () => {
   console.log("connected");
@@ -31,6 +30,24 @@ class View {
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(this.renderer.domElement);
+
+    this.hover = undefined;
+
+    window.addEventListener(
+      "mousemove",
+      event => {
+        const mouse = new THREE.Vector2();
+
+        // calculate mouse position in normalized device coordinates
+        // (-1 to +1) for both components
+        //
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        const star = this.intersect(mouse);
+        this.hover = star;
+      },
+      false
+    );
 
     window.addEventListener(
       "mousedown",
@@ -168,6 +185,33 @@ class View {
   update(dt) {
     this.spaceships.update(dt);
     this.objects.forEach(o => o.update(dt));
+    const overlay = document.getElementById("overlay");
+    // if (this.hover) {
+    //   const coord = this.project(this.hover.mesh);
+    //   overlay.style.left = coord.x + "px";
+    //   overlay.style.top = coord.y + "px";
+    //   overlay.style.display = "block";
+    // } else {
+    //   overlay.style.display = "none";
+    // }
+  }
+
+  project(object) {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const vector = new THREE.Vector3();
+    const projector = new THREE.Projector();
+
+    projector.projectVector(
+      vector.setFromMatrixPosition(object.matrixWorld),
+      this.camera
+    );
+
+    return {
+      x: (vector.x * width) / 2 + width / 2,
+      y: -((vector.y * height) / 2) + height / 2
+    };
   }
 }
 
