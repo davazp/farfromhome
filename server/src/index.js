@@ -47,19 +47,20 @@ class Entity {
       m.reach += dt * C;
       const d = distance(this.position, m.sourcePosition);
       if (d <= m.reach) {
-        this.receivedMessage(m.source, m.message);
+        this.receivedMessage(m.source, m.type, m.message);
       } else {
         this.messageQueue.push(m);
       }
     });
   }
 
-  receivedMessage(origin, message) {
+  receivedMessage(source, type, message) {
     // console.log({ type: "received", origin, message });
   }
 
-  sendMessage(source, message) {
+  sendMessage(source, type, message) {
     this.messageQueue.push({
+      type,
       reach: 0,
       sourcePosition: source.position,
       source,
@@ -67,8 +68,8 @@ class Entity {
     });
   }
 
-  broadcast(message) {
-    this.universe.broadcast(this, message);
+  broadcast(type, message) {
+    this.universe.broadcast(this, type, message);
   }
 }
 
@@ -80,11 +81,11 @@ class Planet extends Entity {
     this.capacity = 0;
   }
 
-  receivedMessage(origin, message) {
-    super.receivedMessage(origin, message);
-    switch (message.type) {
+  receivedMessage(origin, type, message) {
+    super.receivedMessage(origin, type, message);
+    switch (type) {
       case "ping":
-        origin.sendMessage(this, { type: "pong" });
+        origin.sendMessage(this, "pong", {});
         return;
     }
   }
@@ -112,8 +113,8 @@ class Planet extends Entity {
 }
 
 class Player extends Entity {
-  receivedMessage(origin, message) {
-    io.emit("message", { ...message, from: origin.id });
+  receivedMessage(origin, type, message) {
+    io.emit(type, { ...message, from: origin.id });
   }
 }
 
@@ -125,18 +126,18 @@ class Spaceship extends Entity {
     this.maxSpeed = 0.5 * C;
     this.owner = owner;
     this.heartbeat = setInterval(() => {
-      owner.sendMessage(this, { type: "heartbeat", position: this.position });
+      owner.sendMessage(this, "heartbeat", { position: this.position });
     }, 1000);
   }
 
   kill() {
     clearInterval(this.heartbeat);
-    this.owner.sendMessage(this, { type: "sos", position: this.position });
+    this.owner.sendMessage(this, "sos", { position: this.position });
     this.universe.removeEntity(this);
   }
 
-  receivedMessage(origin, message) {
-    switch (message.type) {
+  receivedMessage(origin, type, message) {
+    switch (type) {
       case "goto": {
         this.updateDestination(message.target);
       }
@@ -223,10 +224,10 @@ class Universe {
     this.entities.forEach(e => e.tick(dt));
   }
 
-  broadcast(source, message) {
+  broadcast(source, type, message) {
     this.entities.forEach(e => {
       if (e !== source) {
-        e.sendMessage(this.player, message);
+        e.sendMessage(source, type, message);
       }
     });
   }
@@ -239,7 +240,7 @@ setInterval(() => {
 }, 100);
 
 setTimeout(() => {
-  universe.player.broadcast({ type: "goto", target: universe.somePlanet });
+  universe.player.broadcast("goto", { target: universe.somePlanet });
 }, 1000);
 
 io.on("connection", function(socket) {

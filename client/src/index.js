@@ -37,24 +37,27 @@ class View {
       c.toArray(this.colors, i * 4);
       this.sizes[i] = 1;
     }
+
     const knownIds = [];
-    socket.on("message", message => {
-      console.log({ message });
-      let idx = knownIds.indexOf(message.from);
+    this.getEntityIdx = id => {
+      let idx = knownIds.indexOf(id);
       if (idx < 0) {
-        knownIds.push(message.from);
+        knownIds.push(id);
         idx = knownIds.length - 1;
       }
-      const v = new THREE.Vector3(...message.position);
-      v.toArray(this.positions, idx * 3);
-      const c =
-        message.type === "sos"
-          ? new THREE.Vector4(1, 0, 0, 1)
-          : new THREE.Vector4(1, 1, 1, 1);
-      c.toArray(this.colors, idx * 4);
-      this.sizes[idx] = 1;
-      this.pointsGeometry.attributes.position.needsUpdate = true;
-      this.pointsGeometry.attributes.customColor.needsUpdate = true;
+      return idx;
+    };
+
+    socket.on("heartbeat", message => {
+      const idx = this.getEntityIdx(message.from);
+      const c = new THREE.Vector4(1, 1, 1, 1);
+      this.updateEntityPosition(idx, message.position, c);
+    });
+
+    socket.on("sos", message => {
+      const idx = this.getEntityIdx(message.from);
+      const c = new THREE.Vector4(1, 0, 0, 1);
+      this.updateEntityPosition(idx, message.position, c);
     });
 
     setInterval(() => {
@@ -63,6 +66,15 @@ class View {
       }
       this.pointsGeometry.attributes.customColor.needsUpdate = true;
     }, 10);
+  }
+
+  updateEntityPosition(idx, [x, y, z], color) {
+    const v = new THREE.Vector3(x, y, z);
+    v.toArray(this.positions, idx * 3);
+    color.toArray(this.colors, idx * 4);
+    this.sizes[idx] = 1;
+    this.pointsGeometry.attributes.position.needsUpdate = true;
+    this.pointsGeometry.attributes.customColor.needsUpdate = true;
   }
 
   createPoints() {
