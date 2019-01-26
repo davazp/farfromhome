@@ -7,8 +7,8 @@ class Planet extends Entity {
   constructor(pos) {
     super(pos);
     this.owner = null;
-    this.productionSpeed = 0;
-    this.capacity = 0;
+    this.productionSpeed = 0.1;
+    this.capacity = 3;
   }
 
   takeOver(owner) {
@@ -27,7 +27,7 @@ class Planet extends Entity {
         return;
       case "transfer": {
         const { source, destination } = message;
-        if (true || (origin === source.owner && this.capacity > 1)) {
+        if (origin === source.owner && this.capacity > 1) {
           const spaceship = new Spaceship(
             add(this.position, random(0.1 * C)),
             origin
@@ -42,7 +42,11 @@ class Planet extends Entity {
 
   update(dt) {
     if (this.owner) {
+      const oldCap = this.capacity;
       this.capacity += this.productionSpeed * dt;
+      if ((this.capacity | 0) - (oldCap | 0) > 0) {
+        this.broadcast("capacity-change", { capacity: this.capacity | 0 });
+      }
     }
   }
 

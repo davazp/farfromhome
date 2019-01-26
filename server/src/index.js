@@ -32,6 +32,9 @@ function createPlayer(socket) {
   const ix = Math.floor(availablePlanets.length * Math.random());
   const homePlanet = availablePlanets[ix];
 
+  homePlanet.capacity = 10;
+  homePlanet.broadcast("capacity-change", { capacity: 10 });
+
   const player = new Player(homePlanet.position, socket);
   universe.addEntity(player);
 
