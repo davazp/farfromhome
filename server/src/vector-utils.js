@@ -14,6 +14,10 @@ function scale(v, x) {
   return [v[0] * x, v[1] * x, v[2] * x];
 }
 
+function add(a, b) {
+  return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+}
+
 function difference(a, b) {
   return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
@@ -35,6 +39,7 @@ module.exports = {
   distance,
   speed,
   scale,
+  add,
   difference,
   velocity,
   random

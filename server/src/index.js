@@ -33,6 +33,18 @@ io.on("connection", function(socket) {
     position: pos
   });
 
+  socket.on("transfer", info => {
+    console.log({ info });
+    const source = universe.getEntityById(info.source);
+    const destination = universe.getEntityById(info.destionation);
+    if (!source || !destination) return;
+
+    source.sendMessage(player, "transfer", {
+      source,
+      destination
+    });
+  });
+
   universe.entities.forEach(e => {
     if (e instanceof Planet) {
       player.sendMessage(e, "discovered", {
@@ -43,11 +55,11 @@ io.on("connection", function(socket) {
     }
   });
 
-  for (let i = 0; i < 100; i++) {
-    const s = new Spaceship(random(Λ), player);
-    s.updateVelocity(random(C));
-    universe.addEntity(s);
-  }
+  // for (let i = 0; i < 100; i++) {
+  //   const s = new Spaceship(random(Λ), player);
+  //   s.updateVelocity(random(C));
+  //   universe.addEntity(s);
+  // }
 });
 
 http.listen(3000, function() {

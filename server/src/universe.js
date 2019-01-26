@@ -27,6 +27,10 @@ class Universe {
     // this.addEntity(this.somePlanet);
   }
 
+  getEntityById(id) {
+    return this.entities.find(e => e.id === id);
+  }
+
   addEntity(ent) {
     ent.universe = this;
     this.entities.push(ent);

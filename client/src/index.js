@@ -26,6 +26,8 @@ class View {
     let scene = new THREE.Scene();
     this.scene = scene;
 
+    this.selectedSource = undefined;
+
     this.renderer = new THREE.WebGLRenderer();
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(this.renderer.domElement);
@@ -33,16 +35,24 @@ class View {
     window.addEventListener(
       "mousedown",
       event => {
+        const rightClick = event.button === 2;
         const mouse = new THREE.Vector2();
+
         // calculate mouse position in normalized device coordinates
         // (-1 to +1) for both components
         //
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         const star = this.intersect(mouse);
-        if (star) {
-          const { x, y, z } = star.mesh.position;
-          this.centerCamera([x, y, z]);
+
+        if (this.selectedSource && star && rightClick) {
+          console.log({ source: this.selectedSource, dest: star });
+          socket.emit("transfer", {
+            source: this.selectedSource.id,
+            destionation: star.id
+          });
+        } else {
+          this.selectedSource = star;
         }
       },
       false
@@ -92,6 +102,7 @@ class View {
               : "red"
             : "grey"
         );
+        star.id = message.from;
         this.objects.set(message.from, star);
         this.scene.add(star.mesh);
       }

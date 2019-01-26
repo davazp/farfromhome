@@ -1,4 +1,7 @@
+const { C } = require("./constants");
 const Entity = require("./entity");
+const Spaceship = require("./spaceship");
+const { add, random } = require("./vector-utils");
 
 class Planet extends Entity {
   constructor(pos) {
@@ -22,6 +25,18 @@ class Planet extends Entity {
       case "ping":
         origin.sendMessage(this, "pong", {});
         return;
+      case "transfer": {
+        const { source, destination } = message;
+        if (true || (origin === source.owner && this.capacity > 1)) {
+          const spaceship = new Spaceship(
+            add(this.position, random(0.1 * C)),
+            origin
+          );
+          this.universe.addEntity(spaceship);
+          this.capacity -= 1;
+          spaceship.updateDestination(destination);
+        }
+      }
     }
   }
 
