@@ -24,6 +24,14 @@ module.exports = {
         }
       },
       {
+        test: /\.glsl$/,
+        use: "raw-loader"
+      },
+      {
+        test: /\.png$/,
+        use: "file-loader"
+      },
+      {
         test: /\.s?css$/,
         use: ["style-loader", "css-loader", "sass-loader"]
       }
