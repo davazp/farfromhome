@@ -1,26 +1,28 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Game</title>
     <style>
-      html, body { padding: 0; margin: 0; }
+      html,
+      body {
+        padding: 0;
+        margin: 0;
+      }
       #overlay {
-          display: none;
-          position: absolute;
-          opacity: 0.8;
-          background: #505050;
-          color: white;
+        display: none;
+        position: absolute;
+        opacity: 0.8;
+        background: #505050;
+        color: white;
+        pointer-events: none;
       }
     </style>
-</head>
+  </head>
 
-<body>
-    <div id="root">
-    </div>
+  <body>
+    <div id="root"></div>
     <span id="overlay">test!</span>
-</body>
-
+  </body>
 </html>
