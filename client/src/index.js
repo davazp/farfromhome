@@ -5,8 +5,13 @@ import "three/examples/js/controls/OrbitControls";
 
 import disc from "./textures/disc.png";
 
+import lavatile from "./textures/lavatile.jpg";
+import cloud from "./textures/cloud.png";
+
 import vertexShader from "./vertex.glsl";
 import fragmentShader from "./fragment.glsl";
+import lavaVertexShader from "./lavaVertexShader.glsl";
+import lavaFragmentShader from "./lava.glsl";
 
 const socket = io("http://localhost:3000/");
 
@@ -22,36 +27,29 @@ const COUNT_OBJS = 100;
 
 class View {
   constructor() {
+    this.time = 1.0;
     this.radar = new Map();
-
     this.positions = new Float32Array(COUNT_OBJS * 3);
     this.colors = new Float32Array(COUNT_OBJS * 3);
     this.sizes = new Float32Array(COUNT_OBJS);
-
     for (let i = 0; i < COUNT_OBJS; i++) {
       const color = new THREE.Color("red");
       color.toArray(this.colors, i * 3);
       this.sizes[i] = 1;
     }
-
     const knownIds = [];
-
     socket.on("message", message => {
       console.log({ message });
-
       let idx = knownIds.indexOf(message.from);
       if (idx < 0) {
         knownIds.push(message.from);
         idx = knownIds.length - 1;
       }
-
       const v = new THREE.Vector3(...message.position);
-
       v.toArray(this.positions, idx * 3);
       const color = new THREE.Color("yellow");
       color.toArray(this.colors, idx * 3);
       this.sizes[idx] = 1;
-
       this.pointsGeometry.attributes.position.needsUpdate = true;
       this.pointsGeometry.attributes.customColor.needsUpdate = true;
     });
@@ -80,11 +78,45 @@ class View {
       fragmentShader,
       alphaTest: 0.9
     });
-    //
+
     let particles = new THREE.Points(geometry, material);
     this.scene.add(particles);
 
     return geometry;
+  }
+
+  createStar() {
+    const radius = 5;
+    const segments = 30;
+    const rings = 30;
+
+    const textureLoader = new THREE.TextureLoader();
+    const geometry = new THREE.SphereGeometry(radius, segments, rings);
+
+    const uniforms = {
+      fogDensity: { value: 0.01 },
+      fogColor: { value: new THREE.Vector3(0, 0, 0) },
+      time: { value: this.time },
+      uvScale: { value: new THREE.Vector2(3.0, 1.0) },
+      texture1: { value: textureLoader.load(cloud) },
+      texture2: { value: textureLoader.load(lavatile) }
+    };
+    uniforms.texture1.value.wrapS = uniforms.texture1.value.wrapT =
+      THREE.RepeatWrapping;
+    uniforms.texture2.value.wrapS = uniforms.texture2.value.wrapT =
+      THREE.RepeatWrapping;
+    var size = 0.65;
+
+    const material = new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader: lavaVertexShader,
+      fragmentShader: lavaFragmentShader
+    });
+
+    const cube = new THREE.Mesh(geometry, material);
+    this.scene.add(cube);
+
+    return cube;
   }
 
   start() {
@@ -108,26 +140,16 @@ class View {
     camera.position.y = 0;
     camera.position.z = 5;
 
-    const radius = 5;
-    const segments = 30;
-    const rings = 30;
-
-    const geometry = new THREE.SphereGeometry(radius, segments, rings);
-    const material = new THREE.MeshBasicMaterial({
-      color: 0x303030,
-      wireframe: true
-    });
-
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
-
+    this.star = this.createStar();
     this.pointsGeometry = this.createPoints();
 
-    function animate() {
+    const animate = () => {
+      this.star.material.uniforms.time.value += 0.01;
+
       requestAnimationFrame(animate);
       renderer.render(scene, camera);
       controls.update();
-    }
+    };
     animate();
   }
 }
