@@ -36,5 +36,6 @@ module.exports = {
   speed,
   scale,
   difference,
-  velocity
+  velocity,
+  random
 };

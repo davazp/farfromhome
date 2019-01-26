@@ -1,8 +1,8 @@
 const Entity = require("./entity");
 
 class Player extends Entity {
-  constructor(x, y, z, socket) {
-    super(x, y, z);
+  constructor(pos, socket) {
+    super(pos);
     this.socket = socket;
   }
   receivedMessage(origin, type, message) {

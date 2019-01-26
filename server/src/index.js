@@ -13,12 +13,12 @@ setInterval(() => {
   universe.tick(0.1);
 }, 100);
 
-setTimeout(() => {
-  universe.player.broadcast("goto", { target: universe.somePlanet });
-}, 1000);
+// setTimeout(() => {
+//   universe.player.broadcast("goto", { target: universe.somePlanet });
+// }, 1000);
 
 io.on("connection", function(socket) {
-  const player = new Player(...random(), socket);
+  const player = new Player(random(), socket);
   universe.addEntity(player);
 });
 

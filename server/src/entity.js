@@ -3,10 +3,10 @@ const V = require("./vector-utils");
 const { C } = require("./constants");
 
 class Entity {
-  constructor(x, y, z) {
+  constructor(pos) {
     this.id = uuidv1();
     this.universe = null;
-    this.position = [x, y, z];
+    this.position = pos;
     this.messageQueue = [];
   }
 

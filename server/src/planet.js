@@ -1,8 +1,8 @@
 const Entity = require("./entity");
 
 class Planet extends Entity {
-  constructor(x, y, z) {
-    super(x, y, z);
+  constructor(pos) {
+    super(pos);
     this.owner = null;
     this.productionSpeed = 0;
     this.capacity = 0;

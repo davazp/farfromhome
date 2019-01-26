@@ -3,8 +3,8 @@ const { C } = require("./constants");
 const Entity = require("./entity");
 
 class Spaceship extends Entity {
-  constructor(x, y, z, owner) {
-    super(x, y, z);
+  constructor(pos, owner) {
+    super(pos);
     this.updateVelocity([0, 0, 0]);
     this.destination = null;
     this.maxSpeed = 0.5 * C;
