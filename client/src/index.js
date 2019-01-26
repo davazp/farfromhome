@@ -30,11 +30,11 @@ class View {
     this.time = 1.0;
     this.radar = new Map();
     this.positions = new Float32Array(COUNT_OBJS * 3);
-    this.colors = new Float32Array(COUNT_OBJS * 3);
+    this.colors = new Float32Array(COUNT_OBJS * 4);
     this.sizes = new Float32Array(COUNT_OBJS);
     for (let i = 0; i < COUNT_OBJS; i++) {
-      const color = new THREE.Color("red");
-      color.toArray(this.colors, i * 3);
+      const c = new THREE.Vector4(1, 0, 0, 0);
+      c.toArray(this.colors, i * 4);
       this.sizes[i] = 1;
     }
     const knownIds = [];
@@ -47,8 +47,8 @@ class View {
       }
       const v = new THREE.Vector3(...message.position);
       v.toArray(this.positions, idx * 3);
-      const color = new THREE.Color("yellow");
-      color.toArray(this.colors, idx * 3);
+      const c = new THREE.Vector4(1, 1, 1, 1);
+      c.toArray(this.colors, idx * 4);
       this.sizes[idx] = 1;
       this.pointsGeometry.attributes.position.needsUpdate = true;
       this.pointsGeometry.attributes.customColor.needsUpdate = true;
@@ -63,7 +63,7 @@ class View {
     );
     geometry.addAttribute(
       "customColor",
-      new THREE.BufferAttribute(this.colors, 3)
+      new THREE.BufferAttribute(this.colors, 4)
     );
     geometry.addAttribute("size", new THREE.BufferAttribute(this.sizes, 1));
 
@@ -76,9 +76,8 @@ class View {
       },
       vertexShader,
       fragmentShader,
-      alphaTest: 0.9
+      transparent: true
     });
-
     let particles = new THREE.Points(geometry, material);
     this.scene.add(particles);
 
