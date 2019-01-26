@@ -138,7 +138,7 @@ class View {
 
     camera.position.x = 0;
     camera.position.y = 0;
-    camera.position.z = 5;
+    camera.position.z = 20;
 
     this.star = this.createStar();
     this.pointsGeometry = this.createPoints();
