@@ -18,68 +18,56 @@ socket.on("disconnect", () => {
   console.log("disconnect");
 });
 
+const COUNT_OBJS = 100;
+
 class View {
   constructor() {
     this.radar = new Map();
+
+    this.positions = new Float32Array(COUNT_OBJS * 3);
+    this.colors = new Float32Array(COUNT_OBJS * 3);
+    this.sizes = new Float32Array(COUNT_OBJS);
+
+    for (let i = 0; i < COUNT_OBJS; i++) {
+      const color = new THREE.Color("red");
+      color.toArray(this.colors, i * 3);
+      this.sizes[i] = 1;
+    }
+
+    const knownIds = [];
+
     socket.on("message", message => {
-      this.updateEntity(message.from, message.position);
+      console.log({ message });
+
+      let idx = knownIds.indexOf(message.from);
+      if (idx < 0) {
+        knownIds.push(message.from);
+        idx = knownIds.length - 1;
+      }
+
+      const v = new THREE.Vector3(...message.position);
+
+      v.toArray(this.positions, idx * 3);
+      const color = new THREE.Color("yellow");
+      color.toArray(this.colors, idx * 3);
+      this.sizes[idx] = 1;
+
+      this.pointsGeometry.attributes.position.needsUpdate = true;
+      this.pointsGeometry.attributes.customColor.needsUpdate = true;
     });
   }
 
-  getOrMakeEntity(id) {
-    let obj = this.radar.get(id);
-    if (!obj) {
-      const geometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
-      const material = new THREE.MeshBasicMaterial({
-        color: new THREE.Color("red")
-      });
-      obj = new THREE.Mesh(geometry, material);
-      this.scene.add(obj);
-      this.radar.set(id, obj);
-    }
-    return obj;
-  }
-
-  updateEntity(id, position) {
-    const obj = this.getOrMakeEntity(id);
-    const [x, y, z] = position;
-    obj.position.x = x;
-    obj.position.y = y;
-    obj.position.z = z;
-    return obj;
-  }
-
-  renderPoints() {
-    const vertices = [];
-
-    for (let i = 0; i < 1000; i++) {
-      vertices.push(
-        new THREE.Vector3(
-          10 * (2 * Math.random() - 1),
-          10 * (2 * Math.random() - 1),
-          10 * (2 * Math.random() - 1)
-        )
-      );
-    }
-
-    const positions = new Float32Array(vertices.length * 3);
-    const colors = new Float32Array(vertices.length * 3);
-    const sizes = new Float32Array(vertices.length);
-    const color = new THREE.Color();
-
-    for (var i = 0, l = vertices.length; i < l; i++) {
-      const vertex = vertices[i];
-      vertex.toArray(positions, i * 3);
-      color.setHSL(0.01 + 0.1 * (i / l), 1.0, 0.5);
-      color.toArray(colors, i * 3);
-      sizes[i] = 1;
-    }
-
+  createPoints() {
     const geometry = new THREE.BufferGeometry();
-    geometry.addAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geometry.addAttribute("customColor", new THREE.BufferAttribute(colors, 3));
-    geometry.addAttribute("size", new THREE.BufferAttribute(sizes, 1));
-    //
+    geometry.addAttribute(
+      "position",
+      new THREE.BufferAttribute(this.positions, 3)
+    );
+    geometry.addAttribute(
+      "customColor",
+      new THREE.BufferAttribute(this.colors, 3)
+    );
+    geometry.addAttribute("size", new THREE.BufferAttribute(this.sizes, 1));
 
     const material = new THREE.ShaderMaterial({
       uniforms: {
@@ -95,7 +83,8 @@ class View {
     //
     let particles = new THREE.Points(geometry, material);
     this.scene.add(particles);
-    //
+
+    return geometry;
   }
 
   start() {
@@ -132,7 +121,7 @@ class View {
     const cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
 
-    // this.renderPoints();
+    this.pointsGeometry = this.createPoints();
 
     function animate() {
       requestAnimationFrame(animate);

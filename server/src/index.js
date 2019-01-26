@@ -110,9 +110,9 @@ class Universe {
       );
 
       s.updateVelocity([
-        (C * Math.random()) / 10,
-        (C * Math.random()) / 10,
-        (C * Math.random()) / 10
+        (C * (Math.random() - 0.5)) / 10,
+        (C * (Math.random() - 0.5)) / 10,
+        (C * (Math.random() - 0.5)) / 10
       ]);
 
       this.entities.push(s);
