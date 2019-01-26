@@ -147,7 +147,7 @@ class View {
       if (!star) {
         return;
       }
-      star.setCapacity(message.capacity);
+      star.setCapacity(message.capacity, !message.wasProduced);
     });
 
     socket.on("heartbeat", message => {

@@ -46,7 +46,10 @@ class Planet extends Entity {
       const oldCap = this.capacity;
       this.capacity += this.productionSpeed * dt;
       if ((this.capacity | 0) - (oldCap | 0) > 0) {
-        this.broadcast("capacity-change", { capacity: this.capacity | 0 });
+        this.broadcast("capacity-change", {
+          capacity: this.capacity | 0,
+          wasProduced: true
+        });
       }
     }
   }

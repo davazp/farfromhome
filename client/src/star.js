@@ -89,8 +89,10 @@ export class Star {
     );
   }
 
-  setCapacity(cap) {
+  setCapacity(cap, shouldNotify) {
     this.capacity = cap;
-    this.mesh.material.uniforms.alpha.value = 1;
+    if (shouldNotify) {
+      this.mesh.material.uniforms.alpha.value = 1;
+    }
   }
 }
