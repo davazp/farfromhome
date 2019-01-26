@@ -71,7 +71,7 @@ io.on("connection", function(socket) {
         player.sendMessage(e, "discovered", {
           type: e.constructor.name,
           owner: e.owner && e.owner.id,
-          capacity: e.capacity,
+          capacity: e.capacity | 0,
           position: e.position
         });
       }
