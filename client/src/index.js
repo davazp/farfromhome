@@ -83,7 +83,7 @@ class View {
     this.camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
-      0.001,
+      0.000001,
       1000
     );
 
@@ -165,7 +165,7 @@ class View {
   }
 
   centerCamera([x, y, z]) {
-    this.controls.object.position.set(x + 3, y + 3, z + 3);
+    this.controls.object.position.set(x - 0.3, y - 0.3, z - 0.3);
     this.controls.target = new THREE.Vector3(x, y, z);
     this.controls.update();
   }

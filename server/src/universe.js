@@ -5,7 +5,7 @@ const Planet = require("./planet");
 const Spaceship = require("./spaceship");
 
 class Universe {
-  constructor(io) {
+  constructor() {
     this.entities = [];
 
     // this.player = new Player(0, 0, 0, io);

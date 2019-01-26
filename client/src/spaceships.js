@@ -24,7 +24,7 @@ export class Spaceships {
     for (let i = 0; i < COUNT_OBJS; i++) {
       const c = new THREE.Vector4(1, 0, 0, 0);
       c.toArray(this.colors, i * 4);
-      this.sizes[i] = 1;
+      this.sizes[i] = 0.1;
     }
 
     const geometry = new THREE.BufferGeometry();
@@ -59,7 +59,7 @@ export class Spaceships {
     const idx = this.getEntityIdx(id);
     const v = new THREE.Vector3(x, y, z);
     v.toArray(this.positions, idx * 3);
-    this.sizes[idx] = 1;
+    // this.sizes[idx] = 0.25;
     this.geometry.attributes.position.needsUpdate = true;
     this.geometry.attributes.size.needsUpdate = true;
   }

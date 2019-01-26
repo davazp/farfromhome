@@ -10,7 +10,7 @@ import lavaFragmentShader from "./starFragmentShader.glsl";
 
 export class Star {
   constructor([x, y, z], owner, playerId) {
-    const radius = 1;
+    const radius = 0.1;
     const segments = 30;
     const rings = 30;
 
