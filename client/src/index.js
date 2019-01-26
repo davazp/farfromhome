@@ -132,6 +132,9 @@ class View {
         const star = new Star(message.position, message.owner, this.playerId);
         star.id = message.from;
         star.capacity = message.capacity;
+        if (message.isHome) {
+          star.markHome();
+        }
         this.objects.set(message.from, star);
         this.scene.add(star.mesh);
       }

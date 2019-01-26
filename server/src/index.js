@@ -33,6 +33,7 @@ function createPlayer(socket) {
   const homePlanet = availablePlanets[ix];
 
   homePlanet.capacity = 10;
+  homePlanet.isHome = true;
   homePlanet.broadcast("capacity-change", { capacity: 10 });
 
   const player = new Player(homePlanet.position, socket);
@@ -72,7 +73,8 @@ io.on("connection", function(socket) {
           type: e.constructor.name,
           owner: e.owner && e.owner.id,
           capacity: e.capacity | 0,
-          position: e.position
+          position: e.position,
+          isHome: e.isHome
         });
       }
     });

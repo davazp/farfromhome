@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 import lavatile_red from "./textures/lavatile_red.jpg";
 import lavatile_green from "./textures/lavatile_green.jpg";
+import lavatile_blue from "./textures/lavatile_blue.jpg";
 import lavatile_grey from "./textures/lavatile_grey.jpg";
 import cloud from "./textures/cloud.png";
 
@@ -20,6 +21,7 @@ export class Star {
     this.owner = owner;
     this.playerId = playerId;
     this.capacity = 0;
+    this.isHome = false;
 
     const uniforms = {
       fogDensity: { value: 0.01 },
@@ -72,7 +74,9 @@ export class Star {
       !owner
         ? lavatile_grey
         : owner === this.playerId
-        ? lavatile_green
+        ? this.isHome
+          ? lavatile_green
+          : lavatile_blue
         : lavatile_red
     );
   }
@@ -84,6 +88,13 @@ export class Star {
     this.owner = owner;
 
     this.mesh.material.uniforms.alpha.value = 1;
+    this.mesh.material.uniforms.texture2.value = this.getTextureForOwner(
+      this.owner
+    );
+  }
+
+  markHome() {
+    this.isHome = true;
     this.mesh.material.uniforms.texture2.value = this.getTextureForOwner(
       this.owner
     );
