@@ -36,7 +36,8 @@ io.on("connection", function(socket) {
   socket.on("transfer", info => {
     console.log({ info });
     const source = universe.getEntityById(info.source);
-    const destination = universe.getEntityById(info.destionation);
+    const destination = universe.getEntityById(info.destination);
+    console.log({ s: source.id, d: destination.id });
     if (!source || !destination) return;
 
     source.sendMessage(player, "transfer", {
@@ -50,6 +51,7 @@ io.on("connection", function(socket) {
       player.sendMessage(e, "discovered", {
         type: e.constructor.name,
         owner: e.owner.id,
+        capacity: e.capacity,
         position: e.position
       });
     }

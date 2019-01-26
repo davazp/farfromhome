@@ -47,18 +47,21 @@ class Planet extends Entity {
   }
 
   receiveSpaceship(ship) {
-    if (!this.owner) {
+    if (this.owner === ship.owner) {
+      // reinforce
+      this.capacity += 1;
+      ship.destroy(false);
+    } else if (!this.owner || (this.capacity | 0) <= 0) {
+      // neutral or defenseless
       this.takeOver(ship.owner);
       this.capacity += 1;
-    } else if (this.owner === ship.owner) {
-      this.capacity += 1;
+      ship.destroy(false);
     } else {
+      // attack
       this.capacity -= 1;
-      ship.kill();
-      if (this.capacity === 0) {
-        this.takeOver(null);
-      }
+      ship.destroy(true);
     }
+    this.broadcast("capacity-change", { capacity: this.capacity });
   }
 }
 

@@ -49,7 +49,7 @@ class View {
           console.log({ source: this.selectedSource, dest: star });
           socket.emit("transfer", {
             source: this.selectedSource.id,
-            destionation: star.id
+            destination: star.id
           });
         } else {
           this.selectedSource = star;
@@ -80,10 +80,6 @@ class View {
       this.spaceships.updateEntityPosition(message.from, message.position, c);
     });
 
-    // socket.on("take-over", message => {
-    //   this.createStar(message.position);
-    // });
-
     socket.on("welcome", message => {
       console.log("welcome", message);
       this.playerId = message.playerId;
@@ -94,15 +90,9 @@ class View {
       console.log("discover", message);
 
       if (message.type === "Planet") {
-        const star = new Star(
-          message.position,
-          message.owner
-            ? message.owner === this.playerId
-              ? "green"
-              : "red"
-            : "grey"
-        );
+        const star = new Star(message.position, message.owner, this.playerId);
         star.id = message.from;
+        star.capacity = message.capacity;
         this.objects.set(message.from, star);
         this.scene.add(star.mesh);
       }
@@ -114,13 +104,15 @@ class View {
       if (!star) {
         return;
       }
-      star.setColor(
-        message.owner
-          ? message.owner === this.playerId
-            ? "green"
-            : "red"
-          : "grey"
-      );
+      star.setOwner(message.owner);
+    });
+
+    socket.on("capacity-change", message => {
+      const star = this.objects.get(message.from);
+      if (!star) {
+        return;
+      }
+      star.setCapacity(message.capacity);
     });
 
     socket.on("heartbeat", message => {

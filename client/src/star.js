@@ -9,13 +9,17 @@ import lavaVertexShader from "./starVertexShader.glsl";
 import lavaFragmentShader from "./starFragmentShader.glsl";
 
 export class Star {
-  constructor([x, y, z], color) {
+  constructor([x, y, z], owner, playerId) {
     const radius = 1;
     const segments = 30;
     const rings = 30;
 
     const textureLoader = new THREE.TextureLoader();
     const geometry = new THREE.SphereGeometry(radius, segments, rings);
+
+    this.owner = owner;
+    this.playerId = playerId;
+    this.capacity = 0;
 
     const uniforms = {
       fogDensity: { value: 0.01 },
@@ -25,13 +29,7 @@ export class Star {
       alpha: { value: 1.0 },
       texture1: { value: textureLoader.load(cloud) },
       texture2: {
-        value: textureLoader.load(
-          color === "grey"
-            ? lavatile_grey
-            : color === "red"
-            ? lavatile_red
-            : lavatile_green
-        )
+        value: this.getTextureForOwner(this.owner)
       }
     };
     uniforms.texture1.value.wrapS = uniforms.texture1.value.wrapT =
@@ -60,18 +58,39 @@ export class Star {
     this.mesh.worldObject = this;
   }
 
-  update() {
-    this.mesh.material.uniforms.time.value += 0.01;
+  update(dt) {
+    this.mesh.material.uniforms.time.value += dt;
+    this.mesh.material.uniforms.alpha.value = Math.max(
+      0.5,
+      this.mesh.material.uniforms.alpha.value - 0.25 * dt
+    );
   }
 
-  setColor(color) {
+  getTextureForOwner(owner) {
     const textureLoader = new THREE.TextureLoader();
-    this.mesh.material.uniforms.texture2.value = textureLoader.load(
-      color === "grey"
+    return textureLoader.load(
+      !owner
         ? lavatile_grey
-        : color === "red"
-        ? lavatile_red
-        : lavatile_green
+        : owner === this.playerId
+        ? lavatile_green
+        : lavatile_red
     );
+  }
+
+  setOwner(owner) {
+    if (this.owner === owner) {
+      return;
+    }
+    this.owner = owner;
+
+    this.mesh.material.uniforms.alpha.value = 1;
+    this.mesh.material.uniforms.texture2.value = this.getTextureForOwner(
+      this.owner
+    );
+  }
+
+  setCapacity(cap) {
+    this.capacity = cap;
+    this.mesh.material.uniforms.alpha.value = 1;
   }
 }
