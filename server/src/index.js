@@ -2,10 +2,13 @@ const app = require("express")();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
 
+const { C, Λ } = require("./constants");
+
 const Universe = require("./universe");
 
 const Player = require("./player");
 const Planet = require("./planet");
+const Spaceship = require("./spaceship");
 const { random } = require("./vector-utils");
 
 const universe = new Universe(io);
@@ -15,7 +18,7 @@ setInterval(() => {
 }, 100);
 
 io.on("connection", function(socket) {
-  const pos = random();
+  const pos = random(Λ);
 
   const player = new Player(pos, socket);
   const planet = new Planet(pos);
@@ -30,11 +33,20 @@ io.on("connection", function(socket) {
   });
 
   universe.entities.forEach(e => {
-    player.sendMessage(e, "discovered", {
-      type: e.constructor.name,
-      position: e.position
-    });
+    console.log(e.constructor.name);
+    if (e instanceof Planet) {
+      player.sendMessage(e, "discovered", {
+        type: e.constructor.name,
+        position: e.position
+      });
+    }
   });
+
+  for (let i = 0; i < 100; i++) {
+    const s = new Spaceship(random(Λ), player);
+    s.updateVelocity(random(C));
+    universe.addEntity(s);
+  }
 });
 
 http.listen(3000, function() {

@@ -23,23 +23,6 @@ class Universe {
     //   );
     // }
 
-    // for (let i = 0; i < 100; i++) {
-    //   const s = new Spaceship(
-    //     Λ * (2 * Math.random() - 1),
-    //     Λ * (2 * Math.random() - 1),
-    //     Λ * (2 * Math.random() - 1),
-    //     this.player
-    //   );
-
-    //   s.updateVelocity([
-    //     (C * (Math.random() - 0.5)) / 10,
-    //     (C * (Math.random() - 0.5)) / 10,
-    //     (C * (Math.random() - 0.5)) / 10
-    //   ]);
-
-    //   this.addEntity(s);
-    // }
-
     // this.addEntity(this.player);
     // this.addEntity(this.somePlanet);
   }

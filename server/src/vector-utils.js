@@ -23,11 +23,11 @@ function velocity(from, to, spd) {
   return scale(dir, spd / speed(dir));
 }
 
-function random() {
+function random(x) {
   return [
-    Λ * (2 * Math.random() - 1),
-    Λ * (2 * Math.random() - 1),
-    Λ * (2 * Math.random() - 1)
+    x * (2 * Math.random() - 1),
+    x * (2 * Math.random() - 1),
+    x * (2 * Math.random() - 1)
   ];
 }
 
