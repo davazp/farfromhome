@@ -8,6 +8,14 @@ class Planet extends Entity {
     this.capacity = 0;
   }
 
+  takeOver(owner) {
+    this.owner = owner;
+    this.broadcast("take-over", {
+      owner: owner ? owner.id : null,
+      position: this.position
+    });
+  }
+
   receivedMessage(origin, type, message) {
     super.receivedMessage(origin, type, message);
     switch (type) {
@@ -25,7 +33,7 @@ class Planet extends Entity {
 
   receiveSpaceship(ship) {
     if (!this.owner) {
-      this.owner = ship.owner;
+      this.takeOver(ship.owner);
       this.capacity += 1;
     } else if (this.owner === ship.owner) {
       this.capacity += 1;
@@ -33,7 +41,7 @@ class Planet extends Entity {
       this.capacity -= 1;
       ship.kill();
       if (this.capacity === 0) {
-        this.owner = null;
+        this.takeOver(null);
       }
     }
   }
