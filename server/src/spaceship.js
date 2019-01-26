@@ -7,7 +7,7 @@ class Spaceship extends Entity {
     super(pos);
     this.updateVelocity([0, 0, 0]);
     this.destination = null;
-    this.maxSpeed = 0.1 * C;
+    this.maxSpeed = 0.5 * C;
     this.owner = owner;
     this.heartbeat = setInterval(() => {
       owner.sendMessage(this, "heartbeat", { position: this.position });
