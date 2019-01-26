@@ -30,6 +30,20 @@ class View {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(this.renderer.domElement);
 
+    window.addEventListener(
+      "mousemove",
+      event => {
+        const mouse = new THREE.Vector2();
+        // calculate mouse position in normalized device coordinates
+        // (-1 to +1) for both components
+        //
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        this.intersect(mouse);
+      },
+      false
+    );
+
     this.time = 1.0;
     this.radar = new Map();
 
@@ -48,9 +62,8 @@ class View {
     this.scene.add(this.spaceships.mesh);
 
     socket.on("heartbeat", message => {
-      const idx = this.spaceships.getEntityIdx(message.from);
       const c = new THREE.Vector4(1, 1, 1, 1);
-      this.spaceships.updateEntityPosition(idx, message.position, c);
+      this.spaceships.updateEntityPosition(message.from, message.position, c);
     });
 
     // socket.on("take-over", message => {
@@ -104,16 +117,16 @@ class View {
 
     socket.on("heartbeat", message => {
       // console.log("heartbeat", message);
-      const idx = this.spaceships.getEntityIdx(message.from);
       const c = new THREE.Vector4(1, 1, 1, 1);
-      this.spaceships.updateEntityPosition(idx, message.position, c);
+      this.spaceships.updateEntityPosition(message.from, message.position);
+      this.spaceships.updateEntityColor(message.from, c);
     });
 
     socket.on("sos", message => {
       // console.log("sos", message);
-      const idx = this.spaceships.getEntityIdx(message.from);
       const c = new THREE.Vector4(1, 0, 0, 1);
-      this.spaceships.updateEntityPosition(idx, message.position, c);
+      this.spaceships.updateEntityPosition(message.from, message.position);
+      this.spaceships.updateEntityColor(message.from, c);
     });
 
     let prevTimestamp;
@@ -132,6 +145,18 @@ class View {
     };
 
     start();
+  }
+
+  intersect(position) {
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(position, this.camera);
+    const objs = raycaster.intersectObjects(this.scene.children);
+    if (objs.length > 0) {
+      const obj = objs[0].object.worldObject;
+      if (obj) {
+        console.log({ obj });
+      }
+    }
   }
 
   update(dt) {

@@ -55,12 +55,18 @@ export class Spaceships {
     this.mesh = particles;
   }
 
-  updateEntityPosition(idx, [x, y, z], color) {
+  updateEntityPosition(id, [x, y, z]) {
+    const idx = this.getEntityIdx(id);
     const v = new THREE.Vector3(x, y, z);
     v.toArray(this.positions, idx * 3);
-    color.toArray(this.colors, idx * 4);
     this.sizes[idx] = 1;
     this.geometry.attributes.position.needsUpdate = true;
+    this.geometry.attributes.size.needsUpdate = true;
+  }
+
+  updateEntityColor(id, color) {
+    const idx = this.getEntityIdx(id);
+    color.toArray(this.colors, idx * 4);
     this.geometry.attributes.customColor.needsUpdate = true;
   }
 

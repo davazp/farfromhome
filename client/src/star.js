@@ -57,6 +57,7 @@ export class Star {
     mesh.position.z = z;
 
     this.mesh = mesh;
+    this.mesh.worldObject = this;
   }
 
   update() {
