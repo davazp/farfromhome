@@ -120,23 +120,27 @@ class View {
       this.spaceships.updateEntityPosition(idx, message.position, c);
     });
 
+    let prevTimestamp;
     const start = () => {
-      const animate = () => {
-        this.time += 0.01;
-        this.update();
-        requestAnimationFrame(animate);
+      const animate = timestamp => {
+        if (!prevTimestamp) prevTimestamp = timestamp;
+        const dt = (timestamp - prevTimestamp) / 1000;
+        prevTimestamp = timestamp;
+        this.time += dt;
+        this.update(dt);
         this.renderer.render(scene, this.camera);
         controls.update();
+        requestAnimationFrame(animate);
       };
-      animate();
+      requestAnimationFrame(animate);
     };
 
     start();
   }
 
-  update() {
-    this.spaceships.update();
-    this.objects.forEach(o => o.update());
+  update(dt) {
+    this.spaceships.update(dt);
+    this.objects.forEach(o => o.update(dt));
   }
 }
 
