@@ -14,6 +14,11 @@ const THREE = window.THREE;
 
 socket.on("connect", () => {
   console.log("connected");
+
+  const playerId = sessionStorage.getItem("farfromhome_player_id");
+  socket.emit("hello", {
+    playerId
+  });
 });
 
 socket.on("disconnect", () => {
@@ -90,13 +95,16 @@ class View {
     this.scene.add(this.spaceships.mesh);
 
     socket.on("welcome", message => {
-      console.log("welcome", message);
+      // console.log("welcome", message);
       this.playerId = message.playerId;
+      sessionStorage.setItem("farfromhome_player_id", this.playerId);
+      console.log(`Playing as ${this.playerId}`);
+
       this.centerCamera(message.position);
     });
 
     socket.on("discovered", message => {
-      console.log("discover", message);
+      // console.log("discover", message);
 
       if (message.type === "Planet") {
         const star = new Star(message.position, message.owner, this.playerId);

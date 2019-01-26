@@ -25,7 +25,7 @@ setInterval(() => {
   universe.tick(0.1);
 }, 100);
 
-io.on("connection", function(socket) {
+function createPlayer(socket) {
   const availablePlanets = universe.entities.filter(
     e => e.constructor.name === "Planet" && !e.owner
   );
@@ -37,9 +37,42 @@ io.on("connection", function(socket) {
 
   homePlanet.takeOver(player);
 
-  socket.emit("welcome", {
-    playerId: player.id,
-    position: player.position
+  return player;
+}
+
+function getOrCreatePlayer(playerId, socket) {
+  let player = universe.entities.find(
+    e => e instanceof Player && e.id === playerId
+  );
+  if (!player) {
+    player = createPlayer(socket);
+  } else {
+    player.socket.disconnect(true);
+    player.socket = socket;
+  }
+  return player;
+}
+
+io.on("connection", function(socket) {
+  let player;
+
+  socket.on("hello", info => {
+    player = getOrCreatePlayer(info.playerId, socket);
+    socket.emit("welcome", {
+      playerId: player.id,
+      position: player.position
+    });
+
+    universe.entities.forEach(e => {
+      if (e instanceof Planet) {
+        player.sendMessage(e, "discovered", {
+          type: e.constructor.name,
+          owner: e.owner && e.owner.id,
+          capacity: e.capacity,
+          position: e.position
+        });
+      }
+    });
   });
 
   socket.on("transfer", info => {
@@ -54,23 +87,6 @@ io.on("connection", function(socket) {
       destination
     });
   });
-
-  universe.entities.forEach(e => {
-    if (e instanceof Planet) {
-      player.sendMessage(e, "discovered", {
-        type: e.constructor.name,
-        owner: e.owner && e.owner.id,
-        capacity: e.capacity,
-        position: e.position
-      });
-    }
-  });
-
-  // for (let i = 0; i < 100; i++) {
-  //   const s = new Spaceship(random(Λ), player);
-  //   s.updateVelocity(random(C));
-  //   universe.addEntity(s);
-  // }
 });
 
 http.listen(3000, function() {
