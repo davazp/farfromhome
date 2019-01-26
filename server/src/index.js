@@ -9,28 +9,37 @@ const Universe = require("./universe");
 const Player = require("./player");
 const Planet = require("./planet");
 const Spaceship = require("./spaceship");
-const { random } = require("./vector-utils");
+const { random, distance } = require("./vector-utils");
 
-const universe = new Universe(io);
+const universe = new Universe();
+
+for (let i = 0; i < 75; i++) {
+  const pos = random(Λ);
+  if (distance([0, 0, 0], pos) <= Λ) {
+    const p = new Planet(pos);
+    universe.addEntity(p);
+  }
+}
 
 setInterval(() => {
   universe.tick(0.1);
 }, 100);
 
 io.on("connection", function(socket) {
-  const pos = random(Λ);
+  const availablePlanets = universe.entities.filter(
+    e => e.constructor.name === "Planet" && !e.owner
+  );
+  const ix = Math.floor(availablePlanets.length * Math.random());
+  const homePlanet = availablePlanets[ix];
 
-  const player = new Player(pos, socket);
-  const planet = new Planet(pos);
-
-  universe.addEntity(planet);
+  const player = new Player(homePlanet.position, socket);
   universe.addEntity(player);
 
-  planet.takeOver(player);
+  homePlanet.takeOver(player);
 
   socket.emit("welcome", {
     playerId: player.id,
-    position: pos
+    position: player.position
   });
 
   socket.on("transfer", info => {
@@ -50,7 +59,7 @@ io.on("connection", function(socket) {
     if (e instanceof Planet) {
       player.sendMessage(e, "discovered", {
         type: e.constructor.name,
-        owner: e.owner.id,
+        owner: e.owner && e.owner.id,
         capacity: e.capacity,
         position: e.position
       });
