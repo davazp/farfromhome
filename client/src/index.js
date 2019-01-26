@@ -185,14 +185,15 @@ class View {
     this.spaceships.update(dt);
     this.objects.forEach(o => o.update(dt));
     const overlay = document.getElementById("overlay");
-    // if (this.hover) {
-    //   const coord = this.project(this.hover.mesh);
-    //   overlay.style.left = coord.x + "px";
-    //   overlay.style.top = coord.y + "px";
-    //   overlay.style.display = "block";
-    // } else {
-    //   overlay.style.display = "none";
-    // }
+    if (this.hover) {
+      const coord = this.project(this.hover.mesh);
+      overlay.style.left = coord.x + "px";
+      overlay.style.top = coord.y + "px";
+      overlay.style.display = "block";
+      overlay.innerText = `Capacity: ${this.hover.capacity}`;
+    } else {
+      overlay.style.display = "none";
+    }
   }
 
   project(object) {
