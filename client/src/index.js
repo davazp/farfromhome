@@ -75,9 +75,6 @@ class View {
       false
     );
 
-    this.time = 1.0;
-    this.radar = new Map();
-
     this.objects = new Map();
 
     this.camera = new THREE.PerspectiveCamera(
@@ -91,11 +88,6 @@ class View {
 
     this.spaceships = new Spaceships();
     this.scene.add(this.spaceships.mesh);
-
-    socket.on("heartbeat", message => {
-      const c = new THREE.Vector4(1, 1, 1, 1);
-      this.spaceships.updateEntityPosition(message.from, message.position, c);
-    });
 
     socket.on("welcome", message => {
       console.log("welcome", message);
@@ -152,7 +144,6 @@ class View {
         if (!prevTimestamp) prevTimestamp = timestamp;
         const dt = (timestamp - prevTimestamp) / 1000;
         prevTimestamp = timestamp;
-        this.time += dt;
         this.update(dt);
         this.renderer.render(scene, this.camera);
         this.controls.update();
