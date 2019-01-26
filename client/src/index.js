@@ -31,7 +31,7 @@ class View {
     document.body.appendChild(this.renderer.domElement);
 
     window.addEventListener(
-      "mousemove",
+      "mousedown",
       event => {
         const mouse = new THREE.Vector2();
         // calculate mouse position in normalized device coordinates
@@ -39,7 +39,11 @@ class View {
         //
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        this.intersect(mouse);
+        const star = this.intersect(mouse);
+        if (star) {
+          const { x, y, z } = star.mesh.position;
+          this.centerCamera([x, y, z]);
+        }
       },
       false
     );
@@ -56,7 +60,7 @@ class View {
       1000
     );
 
-    let controls = new THREE.OrbitControls(this.camera);
+    this.controls = new THREE.OrbitControls(this.camera);
 
     this.spaceships = new Spaceships();
     this.scene.add(this.spaceships.mesh);
@@ -72,15 +76,8 @@ class View {
 
     socket.on("welcome", message => {
       console.log("welcome", message);
-
       this.playerId = message.playerId;
-
-      const [x, y, z] = message.position;
-
-      controls.object.position.set(x + 3, y + 3, z + 3);
-      controls.target = new THREE.Vector3(x, y, z);
-
-      controls.update();
+      this.centerCamera(message.position);
     });
 
     socket.on("discovered", message => {
@@ -138,7 +135,7 @@ class View {
         this.time += dt;
         this.update(dt);
         this.renderer.render(scene, this.camera);
-        controls.update();
+        this.controls.update();
         requestAnimationFrame(animate);
       };
       requestAnimationFrame(animate);
@@ -147,15 +144,21 @@ class View {
     start();
   }
 
+  centerCamera([x, y, z]) {
+    this.controls.object.position.set(x + 3, y + 3, z + 3);
+    this.controls.target = new THREE.Vector3(x, y, z);
+    this.controls.update();
+  }
+
   intersect(position) {
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(position, this.camera);
     const objs = raycaster.intersectObjects(this.scene.children);
     if (objs.length > 0) {
       const obj = objs[0].object.worldObject;
-      if (obj) {
-        console.log({ obj });
-      }
+      return obj;
+    } else {
+      return null;
     }
   }
 
