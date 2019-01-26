@@ -33,7 +33,7 @@ class View {
     this.time = 1.0;
     this.radar = new Map();
 
-    this.objects = [];
+    this.objects = new Map();
 
     this.camera = new THREE.PerspectiveCamera(
       75,
@@ -59,6 +59,9 @@ class View {
 
     socket.on("welcome", message => {
       console.log("welcome", message);
+
+      this.playerId = message.playerId;
+
       const [x, y, z] = message.position;
 
       this.camera.position.x = 0;
@@ -75,10 +78,32 @@ class View {
       console.log("discover", message);
 
       if (message.type === "Planet") {
-        const star = new Star(message.position);
-        this.objects.push(star);
+        const star = new Star(
+          message.position,
+          message.owner
+            ? message.owner === this.playerId
+              ? "green"
+              : "red"
+            : "grey"
+        );
+        this.objects.set(message.from, star);
         this.scene.add(star.mesh);
       }
+    });
+
+    socket.on("take-over", message => {
+      console.log({ message });
+      const star = this.objects.get(message.from);
+      if (!star) {
+        return;
+      }
+      star.setColor(
+        message.owner
+          ? message.owner === this.playerId
+            ? "green"
+            : "red"
+          : "grey"
+      );
     });
 
     socket.on("heartbeat", message => {

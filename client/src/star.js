@@ -1,13 +1,15 @@
 import * as THREE from "three";
 
-import lavatile from "./textures/lavatile.jpg";
+import lavatile_red from "./textures/lavatile_red.jpg";
+import lavatile_green from "./textures/lavatile_green.jpg";
+import lavatile_grey from "./textures/lavatile_grey.jpg";
 import cloud from "./textures/cloud.png";
 
 import lavaVertexShader from "./starVertexShader.glsl";
 import lavaFragmentShader from "./starFragmentShader.glsl";
 
 export class Star {
-  constructor([x, y, z]) {
+  constructor([x, y, z], color) {
     const radius = 1;
     const segments = 30;
     const rings = 30;
@@ -21,7 +23,15 @@ export class Star {
       time: { value: 1.0 },
       uvScale: { value: new THREE.Vector2(3.0, 1.0) },
       texture1: { value: textureLoader.load(cloud) },
-      texture2: { value: textureLoader.load(lavatile) }
+      texture2: {
+        value: textureLoader.load(
+          color === "grey"
+            ? lavatile_grey
+            : color === "red"
+            ? lavatile_red
+            : lavatile_green
+        )
+      }
     };
     uniforms.texture1.value.wrapS = uniforms.texture1.value.wrapT =
       THREE.RepeatWrapping;
@@ -49,5 +59,16 @@ export class Star {
 
   update() {
     this.mesh.material.uniforms.time.value += 0.01;
+  }
+
+  setColor(color) {
+    const textureLoader = new THREE.TextureLoader();
+    this.mesh.material.uniforms.texture2.value = textureLoader.load(
+      color === "grey"
+        ? lavatile_grey
+        : color === "red"
+        ? lavatile_red
+        : lavatile_green
+    );
   }
 }

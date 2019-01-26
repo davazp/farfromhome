@@ -29,6 +29,7 @@ io.on("connection", function(socket) {
   planet.takeOver(player);
 
   socket.emit("welcome", {
+    playerId: player.id,
     position: pos
   });
 
@@ -37,6 +38,7 @@ io.on("connection", function(socket) {
     if (e instanceof Planet) {
       player.sendMessage(e, "discovered", {
         type: e.constructor.name,
+        owner: e.owner.id,
         position: e.position
       });
     }
