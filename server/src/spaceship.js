@@ -11,7 +11,7 @@ class Spaceship extends Entity {
     this.owner = owner;
     this.heartbeat = setInterval(() => {
       owner.sendMessage(this, "heartbeat", { position: this.position });
-    }, 1000);
+    }, 10);
   }
 
   destroy(isKilled) {
