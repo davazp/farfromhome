@@ -4,6 +4,7 @@ uniform vec3 fogColor;
 uniform sampler2D texture1;
 uniform sampler2D texture2;
 varying vec2 vUv;
+varying float vAlpha;
 void main( void ) {
   vec2 position = - 1.0 + 2.0 * vUv;
   vec4 noise = texture2D( texture1, vUv );
@@ -20,6 +21,7 @@ void main( void ) {
   if( temp.g > 1.0 ) { temp.rb += temp.g - 1.0; }
   if( temp.b > 1.0 ) { temp.rg += temp.b - 1.0; }
   gl_FragColor = temp;
+  gl_FragColor.w = vAlpha;
   float depth = gl_FragCoord.z / gl_FragCoord.w;
   const float LOG2 = 1.442695;
   float fogFactor = exp2( - fogDensity * fogDensity * depth * depth * LOG2 );

@@ -22,6 +22,7 @@ export class Star {
       fogColor: { value: new THREE.Vector3(0, 0, 0) },
       time: { value: 1.0 },
       uvScale: { value: new THREE.Vector2(3.0, 1.0) },
+      alpha: { value: 1.0 },
       texture1: { value: textureLoader.load(cloud) },
       texture2: {
         value: textureLoader.load(
@@ -45,7 +46,8 @@ export class Star {
     const material = new THREE.ShaderMaterial({
       uniforms,
       vertexShader: lavaVertexShader,
-      fragmentShader: lavaFragmentShader
+      fragmentShader: lavaFragmentShader,
+      transparent: true
     });
 
     const mesh = new THREE.Mesh(geometry, material);
