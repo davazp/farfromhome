@@ -38,7 +38,7 @@ class View {
     this.camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
-      0.1,
+      0.001,
       1000
     );
 
@@ -64,14 +64,10 @@ class View {
 
       const [x, y, z] = message.position;
 
-      this.camera.position.x = 0;
-      this.camera.position.y = 0;
-      this.camera.position.z = 10;
+      controls.object.position.set(x + 3, y + 3, z + 3);
+      controls.target = new THREE.Vector3(x, y, z);
 
-      // this.camera.position.x = x;
-      // this.camera.position.y = y;
-      // this.camera.position.z = z - 10;
-      // this.camera.lookAt(x, y, z);
+      controls.update();
     });
 
     socket.on("discovered", message => {
