@@ -82,7 +82,6 @@ io.on("connection", function(socket) {
     console.log({ info });
     const source = universe.getEntityById(info.source);
     const destination = universe.getEntityById(info.destination);
-    console.log({ s: source.id, d: destination.id });
     if (!source || !destination) return;
 
     source.sendMessage(player, "transfer", {
