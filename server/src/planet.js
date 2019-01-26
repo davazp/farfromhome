@@ -34,6 +34,7 @@ class Planet extends Entity {
           );
           this.universe.addEntity(spaceship);
           this.capacity -= 1;
+          this.broadcast("capacity-change", { capacity: this.capacity | 0 });
           spaceship.updateDestination(destination);
         }
       }
@@ -65,7 +66,7 @@ class Planet extends Entity {
       this.capacity -= 1;
       ship.destroy(true);
     }
-    this.broadcast("capacity-change", { capacity: this.capacity });
+    this.broadcast("capacity-change", { capacity: this.capacity | 0 });
   }
 }
 
