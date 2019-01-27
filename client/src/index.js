@@ -60,7 +60,7 @@ class View {
     window.addEventListener(
       "mousedown",
       event => {
-        const rightClick = event.button === 2;
+        const eventType = event.shiftKey ? "select" : "attack";
         const mouse = new THREE.Vector2();
 
         // calculate mouse position in normalized device coordinates
@@ -70,31 +70,38 @@ class View {
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         const star = this.intersect(mouse);
 
-        if (this.selectedSource && star && rightClick) {
-          socket.emit("transfer", {
-            source: this.selectedSource.id,
-            destination: star.id
-          });
+        switch (eventType) {
+          case "select": {
+            if (star && star.owner === this.playerId)
+              this.selectedSource = star;
+            else this.selectedSource = undefined;
+          }
+          case "attack": {
+            if (this.selectedSource && star) {
+              socket.emit("transfer", {
+                source: this.selectedSource.id,
+                destination: star.id
+              });
 
-          const lineGeometry = new THREE.Geometry();
-          lineGeometry.vertices.push(this.selectedSource.mesh.position);
-          lineGeometry.vertices.push(star.mesh.position);
-          const lineMaterial = new THREE.LineBasicMaterial({
-            color: 0x00ffff,
-            transparent: true,
-            opacity: 0.5
-          });
-          let line = new THREE.Line(lineGeometry, lineMaterial);
-          this.scene.add(line);
+              const lineGeometry = new THREE.Geometry();
+              lineGeometry.vertices.push(this.selectedSource.mesh.position);
+              lineGeometry.vertices.push(star.mesh.position);
+              const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0x00ffff,
+                transparent: true,
+                opacity: 0.5
+              });
+              let line = new THREE.Line(lineGeometry, lineMaterial);
+              this.scene.add(line);
 
-          setTimeout(() => {
-            scene.remove(line);
-            line.geometry.dispose();
-            line.material.dispose();
-            line = undefined;
-          }, 1000);
-        } else {
-          this.selectedSource = star;
+              setTimeout(() => {
+                scene.remove(line);
+                line.geometry.dispose();
+                line.material.dispose();
+                line = undefined;
+              }, 1000);
+            }
+          }
         }
       },
       false
