@@ -4,6 +4,8 @@ import "./enableThree";
 import "three/examples/js/controls/OrbitControls";
 import "three/examples/js/renderers/Projector.js";
 
+import { Music } from "./music";
+
 import disc from "./textures/disc.png";
 import { Spaceships } from "./spaceships";
 import { Star } from "./star";
@@ -30,7 +32,9 @@ socket.on("disconnect", () => {
 });
 
 class View {
-  constructor() {
+  constructor(music) {
+    this.music = music;
+
     let scene = new THREE.Scene();
     this.scene = scene;
 
@@ -141,12 +145,14 @@ class View {
     });
 
     socket.on("take-over", message => {
-      console.log({ message });
       const star = this.objects.get(message.from);
       if (!star) {
         return;
       }
       star.setOwner(message.owner);
+
+      const moodShift = message.owner === this.playerId ? 1 : -1;
+      this.music.setMood(this.music.getMood() + moodShift * 0.2);
     });
 
     socket.on("capacity-change", message => {
@@ -240,4 +246,17 @@ class View {
   }
 }
 
-const view = new View();
+const music = new Music();
+setInterval(() => {
+  const spd = (0.1 * 0.5) / 60; // back to 0.5 in 60 seconds (for 0.1 interval)
+
+  let mood = music.getMood();
+  if (mood > 0.5) {
+    mood = Math.max(0.5, mood - spd);
+  } else if (mood < 0.5) {
+    mood = Math.min(0.5, mood + spd);
+  }
+  music.setMood(mood);
+}, 100);
+
+const view = new View(music);
