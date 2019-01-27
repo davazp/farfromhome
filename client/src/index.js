@@ -51,9 +51,9 @@ class View {
         opacity: 0.3
       });
       const sphere = new THREE.Mesh(geometry, material);
-      sphere.position.x = 10 * Math.random() - 5;
-      sphere.position.y = 10 * Math.random() - 5;
-      sphere.position.z = 10 * Math.random() - 5;
+      sphere.position.x = 12 * Math.random() - 6;
+      sphere.position.y = 12 * Math.random() - 6;
+      sphere.position.z = 12 * Math.random() - 6;
       scene.add(sphere);
     }
 
