@@ -43,6 +43,20 @@ class View {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(this.renderer.domElement);
 
+    for (let i = 0; i < 1000; i++) {
+      const geometry = new THREE.SphereGeometry(0.008, 32, 32);
+      const material = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.3
+      });
+      const sphere = new THREE.Mesh(geometry, material);
+      sphere.position.x = 10 * Math.random() - 5;
+      sphere.position.y = 10 * Math.random() - 5;
+      sphere.position.z = 10 * Math.random() - 5;
+      scene.add(sphere);
+    }
+
     this.hover = undefined;
 
     window.addEventListener(
