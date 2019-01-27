@@ -46,11 +46,11 @@ export class Star {
   setOwner(owner) {
     this.owner = owner;
 
-    console.log(this.owner, this.playerId);
+    // console.log(this.owner, this.playerId);
     if (this.owner === this.playerId) {
-      this.mesh.material.color.set(this.isHome ? "#00ffff" : "#00ff00");
+      this.mesh.material.color.set(this.isHome ? "#00ff33" : "#0077ff");
     } else if (this.owner) {
-      this.mesh.material.color.set("#ff0000");
+      this.mesh.material.color.set("#ff5500");
     } else {
       this.mesh.material.color.set("#505050");
     }
