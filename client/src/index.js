@@ -4,8 +4,7 @@ import "./enableThree";
 import "three/examples/js/controls/OrbitControls";
 import "three/examples/js/renderers/Projector.js";
 
-import disc from "./textures/disc.png";
-import { Spaceships } from "./spaceships";
+import { Spaceship } from "./spaceship";
 import { Star } from "./star";
 
 const socket = io(
@@ -72,7 +71,6 @@ class View {
         const star = this.intersect(mouse);
 
         if (this.selectedSource && star && rightClick) {
-          console.log({ source: this.selectedSource, dest: star });
           socket.emit("transfer", {
             source: this.selectedSource.id,
             destination: star.id
@@ -86,7 +84,7 @@ class View {
             transparent: true,
             opacity: 0.5
           });
-          const line = new THREE.Line(lineGeometry, lineMaterial);
+          let line = new THREE.Line(lineGeometry, lineMaterial);
           this.scene.add(line);
 
           setTimeout(() => {
@@ -112,9 +110,6 @@ class View {
     );
 
     this.controls = new THREE.OrbitControls(this.camera);
-
-    this.spaceships = new Spaceships();
-    this.scene.add(this.spaceships.mesh);
 
     socket.on("welcome", message => {
       // console.log("welcome", message);
@@ -158,17 +153,18 @@ class View {
     });
 
     socket.on("heartbeat", message => {
-      // console.log("heartbeat", message);
-      const c = new THREE.Vector4(1, 1, 1, 1);
-      this.spaceships.updateEntityPosition(message.from, message.position);
-      this.spaceships.updateEntityColor(message.from, c);
+      let ship = this.objects.get(message.from);
+      if (!ship) {
+        ship = new Spaceship();
+        this.objects.set(message.from, ship);
+        this.scene.add(ship);
+      }
+      ship.position.set(...message.position);
     });
 
     socket.on("sos", message => {
-      // console.log("sos", message);
-      const c = new THREE.Vector4(1, 0, 0, 1);
-      this.spaceships.updateEntityPosition(message.from, message.position);
-      this.spaceships.updateEntityColor(message.from, c);
+      const ship = this.objects.get(message.from);
+      this.scene.remove(ship);
     });
 
     let prevTimestamp;
@@ -209,7 +205,6 @@ class View {
   }
 
   update(dt) {
-    this.spaceships.update(dt);
     this.objects.forEach(o => o.update(dt));
     const overlay = document.getElementById("overlay");
     if (this.hover) {
