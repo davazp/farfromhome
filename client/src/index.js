@@ -106,23 +106,11 @@ class View {
                   destination: star.id
                 });
 
-                const lineGeometry = new THREE.Geometry();
-                lineGeometry.vertices.push(this.selectedSource.mesh.position);
-                lineGeometry.vertices.push(star.mesh.position);
-                const lineMaterial = new THREE.LineBasicMaterial({
-                  color: 0x00ffff,
-                  transparent: true,
-                  opacity: 0.5
-                });
-                let line = new THREE.Line(lineGeometry, lineMaterial);
-                this.scene.add(line);
-
-                setTimeout(() => {
-                  scene.remove(line);
-                  line.geometry.dispose();
-                  line.material.dispose();
-                  line = undefined;
-                }, 1000);
+                this.createTempLine(
+                  this.selectedSource.mesh.position,
+                  star.mesh.position,
+                  1000
+                );
               }
             }
             break;
@@ -226,6 +214,26 @@ class View {
     };
 
     start();
+  }
+
+  createTempLine(from, to, duration) {
+    const lineGeometry = new THREE.Geometry();
+    lineGeometry.vertices.push(from);
+    lineGeometry.vertices.push(to);
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0x00ffff,
+      transparent: true,
+      opacity: 0.5
+    });
+    let line = new THREE.Line(lineGeometry, lineMaterial);
+    this.scene.add(line);
+
+    setTimeout(() => {
+      this.scene.remove(line);
+      line.geometry.dispose();
+      line.material.dispose();
+      line = undefined;
+    }, duration);
   }
 
   centerCamera([x, y, z]) {
