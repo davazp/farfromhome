@@ -43,14 +43,14 @@ class View {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(this.renderer.domElement);
 
+    const bgDustGeometry = new THREE.SphereGeometry(0.008, 32, 32);
+    const bgDustMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.3
+    });
     for (let i = 0; i < 1000; i++) {
-      const geometry = new THREE.SphereGeometry(0.008, 32, 32);
-      const material = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        transparent: true,
-        opacity: 0.3
-      });
-      const sphere = new THREE.Mesh(geometry, material);
+      const sphere = new THREE.Mesh(bgDustGeometry, bgDustMaterial);
       sphere.position.x = 12 * Math.random() - 6;
       sphere.position.y = 12 * Math.random() - 6;
       sphere.position.z = 12 * Math.random() - 6;
