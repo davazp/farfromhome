@@ -200,6 +200,17 @@ class View {
       this.scene.remove(ship);
     });
 
+    window.addEventListener(
+      "resize",
+      () => {
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+      },
+      false
+    );
+
     let prevTimestamp;
     const start = () => {
       const animate = timestamp => {
