@@ -37,6 +37,32 @@ class View {
     let scene = new THREE.Scene();
     this.scene = scene;
 
+    this.scene.add(new THREE.AmbientLight(0x303030));
+
+    const light1 = new THREE.PointLight(0xffffff, 2);
+    const starGeometry = new THREE.SphereGeometry(0.5, 30, 30);
+    const starMaterial = new THREE.MeshPhongMaterial({
+      color: "#ffffff",
+      emissive: "#f0f0f0"
+    });
+    const star = new THREE.Mesh(starGeometry, starMaterial);
+    light1.add(star);
+    this.scene.add(light1);
+
+    // light1.position.set(0, 10, 0);
+    // const light2 = new THREE.PointLight(0xffffff, 5);
+    // light2.position.set(0, -10, 0);
+    // const light3 = new THREE.PointLight(0xffffff, 5);
+    // light3.position.set(-5, -0, 0);
+
+    // const directionalLight3 = new THREE.DirectionalLight(0xffffff, 5);
+    // directionalLight1.position.set(10, -10, 10);
+    // const directionalLight4 = new THREE.DirectionalLight(0xffffff, 5);
+    // directionalLight1.position.set(-10, 10, -20);
+
+    // this.scene.add(directionalLight3);
+    // this.scene.add(directionalLight4);
+
     this.selectedSource = undefined;
 
     this.renderer = new THREE.WebGLRenderer();
@@ -143,12 +169,14 @@ class View {
       // console.log("discover", message);
 
       if (message.type === "Planet") {
-        const star = new Star(message.position, message.owner, this.playerId);
+        const star = new Star(
+          message.position,
+          message.owner,
+          this.playerId,
+          message.isHome
+        );
         star.id = message.from;
         star.capacity = message.capacity;
-        if (message.isHome) {
-          star.markHome();
-        }
         this.objects.set(message.from, star);
         this.scene.add(star.mesh);
       }
