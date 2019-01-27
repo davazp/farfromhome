@@ -228,10 +228,8 @@ class View {
     const vector = new THREE.Vector3();
     const projector = new THREE.Projector();
 
-    projector.projectVector(
-      vector.setFromMatrixPosition(object.matrixWorld),
-      this.camera
-    );
+    vector.setFromMatrixPosition(object.matrixWorld);
+    vector.project(this.camera);
 
     return {
       x: (vector.x * width) / 2 + width / 2,
