@@ -198,9 +198,11 @@ class View {
     const raycaster = new THREE.Raycaster();
     raycaster.setFromCamera(position, this.camera);
     const objs = raycaster.intersectObjects(this.scene.children);
-    if (objs.length > 0) {
-      const obj = objs[0].object.worldObject;
-      return obj;
+    const star = objs.find(
+      o => o.object && o.object.worldObject instanceof Star
+    );
+    if (star) {
+      return star.object.worldObject;
     } else {
       return null;
     }
