@@ -4,11 +4,10 @@ import "./enableThree";
 import "three/examples/js/controls/OrbitControls";
 import "three/examples/js/renderers/Projector.js";
 
-import { Music } from "./music";
-
-import disc from "./textures/disc.png";
-import { Spaceships } from "./spaceships";
+import { Spaceship } from "./spaceship";
 import { Star } from "./star";
+
+import { Music } from "./music";
 
 const socket = io(
   `${window.location.protocol}//${window.location.hostname}:3000${
@@ -65,7 +64,7 @@ class View {
     window.addEventListener(
       "mousedown",
       event => {
-        const rightClick = event.button === 2;
+        const eventType = event.shiftKey ? "select" : "attack";
         const mouse = new THREE.Vector2();
 
         // calculate mouse position in normalized device coordinates
@@ -75,32 +74,38 @@ class View {
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         const star = this.intersect(mouse);
 
-        if (this.selectedSource && star && rightClick) {
-          console.log({ source: this.selectedSource, dest: star });
-          socket.emit("transfer", {
-            source: this.selectedSource.id,
-            destination: star.id
-          });
+        switch (eventType) {
+          case "select": {
+            if (star && star.owner === this.playerId)
+              this.selectedSource = star;
+            else this.selectedSource = undefined;
+          }
+          case "attack": {
+            if (this.selectedSource && star) {
+              socket.emit("transfer", {
+                source: this.selectedSource.id,
+                destination: star.id
+              });
 
-          const lineGeometry = new THREE.Geometry();
-          lineGeometry.vertices.push(this.selectedSource.mesh.position);
-          lineGeometry.vertices.push(star.mesh.position);
-          const lineMaterial = new THREE.LineBasicMaterial({
-            color: 0x00ffff,
-            transparent: true,
-            opacity: 0.5
-          });
-          const line = new THREE.Line(lineGeometry, lineMaterial);
-          this.scene.add(line);
+              const lineGeometry = new THREE.Geometry();
+              lineGeometry.vertices.push(this.selectedSource.mesh.position);
+              lineGeometry.vertices.push(star.mesh.position);
+              const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0x00ffff,
+                transparent: true,
+                opacity: 0.5
+              });
+              let line = new THREE.Line(lineGeometry, lineMaterial);
+              this.scene.add(line);
 
-          setTimeout(() => {
-            scene.remove(line);
-            line.geometry.dispose();
-            line.material.dispose();
-            line = undefined;
-          }, 1000);
-        } else {
-          this.selectedSource = star;
+              setTimeout(() => {
+                scene.remove(line);
+                line.geometry.dispose();
+                line.material.dispose();
+                line = undefined;
+              }, 1000);
+            }
+          }
         }
       },
       false
@@ -116,9 +121,6 @@ class View {
     );
 
     this.controls = new THREE.OrbitControls(this.camera);
-
-    this.spaceships = new Spaceships();
-    this.scene.add(this.spaceships.mesh);
 
     socket.on("welcome", message => {
       // console.log("welcome", message);
@@ -164,17 +166,18 @@ class View {
     });
 
     socket.on("heartbeat", message => {
-      // console.log("heartbeat", message);
-      const c = new THREE.Vector4(1, 1, 1, 1);
-      this.spaceships.updateEntityPosition(message.from, message.position);
-      this.spaceships.updateEntityColor(message.from, c);
+      let ship = this.objects.get(message.from);
+      if (!ship) {
+        ship = new Spaceship();
+        this.objects.set(message.from, ship);
+        this.scene.add(ship);
+      }
+      ship.position.set(...message.position);
     });
 
     socket.on("sos", message => {
-      // console.log("sos", message);
-      const c = new THREE.Vector4(1, 0, 0, 1);
-      this.spaceships.updateEntityPosition(message.from, message.position);
-      this.spaceships.updateEntityColor(message.from, c);
+      const ship = this.objects.get(message.from);
+      this.scene.remove(ship);
     });
 
     let prevTimestamp;
@@ -215,7 +218,6 @@ class View {
   }
 
   update(dt) {
-    this.spaceships.update(dt);
     this.objects.forEach(o => o.update(dt));
     const overlay = document.getElementById("overlay");
     if (this.hover) {

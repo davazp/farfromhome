@@ -14,11 +14,9 @@ class Spaceship extends Entity {
     }, 10);
   }
 
-  destroy(isKilled) {
+  destroy(_isKilled) {
     clearInterval(this.heartbeat);
-    if (isKilled) {
-      this.owner.sendMessage(this, "sos", { position: this.position });
-    }
+    this.owner.sendMessage(this, "sos", { position: this.position });
     this.universe.removeEntity(this);
   }
 
