@@ -64,7 +64,7 @@ class View {
     window.addEventListener(
       "mousedown",
       event => {
-        const eventType = event.shiftKey ? "select" : "attack";
+        const eventType = event.shiftKey ? "attack" : "select";
         const mouse = new THREE.Vector2();
 
         // calculate mouse position in normalized device coordinates
@@ -76,36 +76,41 @@ class View {
 
         switch (eventType) {
           case "select": {
-            if (star && star.owner === this.playerId)
+            if (star && star.owner === this.playerId) {
               this.selectedSource = star;
-            else this.selectedSource = undefined;
-          }
-          case "attack": {
-            if (this.selectedSource && star) {
-              socket.emit("transfer", {
-                source: this.selectedSource.id,
-                destination: star.id
-              });
-
-              const lineGeometry = new THREE.Geometry();
-              lineGeometry.vertices.push(this.selectedSource.mesh.position);
-              lineGeometry.vertices.push(star.mesh.position);
-              const lineMaterial = new THREE.LineBasicMaterial({
-                color: 0x00ffff,
-                transparent: true,
-                opacity: 0.5
-              });
-              let line = new THREE.Line(lineGeometry, lineMaterial);
-              this.scene.add(line);
-
-              setTimeout(() => {
-                scene.remove(line);
-                line.geometry.dispose();
-                line.material.dispose();
-                line = undefined;
-              }, 1000);
+            } else {
+              this.selectedSource = undefined;
             }
+            break;
           }
+          case "attack":
+            {
+              if (this.selectedSource && star) {
+                socket.emit("transfer", {
+                  source: this.selectedSource.id,
+                  destination: star.id
+                });
+
+                const lineGeometry = new THREE.Geometry();
+                lineGeometry.vertices.push(this.selectedSource.mesh.position);
+                lineGeometry.vertices.push(star.mesh.position);
+                const lineMaterial = new THREE.LineBasicMaterial({
+                  color: 0x00ffff,
+                  transparent: true,
+                  opacity: 0.5
+                });
+                let line = new THREE.Line(lineGeometry, lineMaterial);
+                this.scene.add(line);
+
+                setTimeout(() => {
+                  scene.remove(line);
+                  line.geometry.dispose();
+                  line.material.dispose();
+                  line = undefined;
+                }, 1000);
+              }
+            }
+            break;
         }
       },
       false
