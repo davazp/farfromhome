@@ -78,7 +78,8 @@ class View {
     window.addEventListener(
       "mousedown",
       event => {
-        const eventType = event.shiftKey ? "attack" : "select";
+        const eventType =
+          event.shiftKey || event.button === 2 ? "attack" : "select";
         const mouse = new THREE.Vector2();
 
         // calculate mouse position in normalized device coordinates
