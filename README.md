@@ -2,6 +2,8 @@
 
 An experimental game based on latency. Two players fight to defend their home planet and find a new one. The player that conquers the other player's home planet first wins.
 
+![gameplay animation](gameplay.gif)
+
 ## Setup
 
 Requires Node to run. Install dependencies (from the top level directory):
